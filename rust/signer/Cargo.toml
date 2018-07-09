@@ -1,0 +1,27 @@
+[package]
+name = "signer"
+version = "0.1.0"
+authors = ["debris <marek.kotewicz@gmail.com>"]
+build = "build.rs"
+
+[dependencies]
+libc = "0.2"
+rustc-serialize = "0.3"
+ethkey = { git = "https://github.com/paritytech/parity" }
+ethstore = { git = "https://github.com/paritytech/parity" }
+rlp = { git = "https://github.com/paritytech/parity" }
+tiny-keccak = "1.1"
+blockies = "0.2"
+parity-wordlist = { git = "https://github.com/paritytech/wordlist" }
+jni = { git = "https://github.com/prevoty/jni-rs", default-features = false, optional = true }
+
+[lib]
+name = "signer"
+crate-type = ["staticlib", "cdylib"]
+
+[features]
+default = ["jni"]
+
+# https://github.com/DaGenix/rust-crypto/issues/383
+[replace]
+"rust-crypto:0.2.36" = { git = "https://github.com/debris/rust-crypto" }

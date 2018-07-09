@@ -1,0 +1,1 @@
+export const ROPSTEN_API_KEY = '';
