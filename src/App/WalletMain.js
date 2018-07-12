@@ -29,8 +29,7 @@ import {text} from "./themes";
 
 let { height, width } = Dimensions.get('window');
 import {navigate} from "../../utils/navigationWrapper";
-import {ethSign} from "../util/native";
-
+import { ethSign } from "../util/native";
 
 const signedMessage = ethSign('helllo');
 

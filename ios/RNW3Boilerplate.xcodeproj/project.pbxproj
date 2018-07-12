@@ -28,6 +28,7 @@
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
 		A28F1F88788642F297CA433E /* libRNCamera.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 91F9ABBF335C4234A13BD215 /* libRNCamera.a */; };
 		ADBDB9381DFEBF1600ED6528 /* libRCTBlob.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ADBDB9271DFEBF0700ED6528 /* libRCTBlob.a */; };
+		BD0C1BB820F733480097A6F1 /* libresolv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = BD0C1B8D20F733480097A6F1 /* libresolv.tbd */; };
 		BD4CC7BF2096FB4000F64966 /* libReactNativeHaptic.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BD77CAFD2095866800EC69CB /* libReactNativeHaptic.a */; };
 		BDA627B020EF942F00399A42 /* libsigner.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BDA627AF20EF942F00399A42 /* libsigner.a */; };
 		E4D213D8212D444C982B2CB0 /* libReactNativeHaptic.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C8AA698C606447A28CE49C60 /* libReactNativeHaptic.a */; };
@@ -370,6 +371,7 @@
 		91F9ABBF335C4234A13BD215 /* libRNCamera.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNCamera.a; sourceTree = "<group>"; };
 		928A9887E56C439E998D2F1C /* libTouchID.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libTouchID.a; sourceTree = "<group>"; };
 		ADBDB91F1DFEBF0600ED6528 /* RCTBlob.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTBlob.xcodeproj; path = "../node_modules/react-native/Libraries/Blob/RCTBlob.xcodeproj"; sourceTree = "<group>"; };
+		BD0C1B8D20F733480097A6F1 /* libresolv.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libresolv.tbd; path = ../../../Downloads/libresolv.tbd; sourceTree = "<group>"; };
 		BD4CC7C02096FFD400F64966 /* RNW3Boilerplate.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = RNW3Boilerplate.entitlements; path = RNW3Boilerplate/RNW3Boilerplate.entitlements; sourceTree = "<group>"; };
 		BDA627AF20EF942F00399A42 /* libsigner.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libsigner.a; path = ../rust/signer/libsigner.a; sourceTree = "<group>"; };
 		C8AA698C606447A28CE49C60 /* libReactNativeHaptic.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libReactNativeHaptic.a; sourceTree = "<group>"; };
@@ -390,6 +392,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BD0C1BB820F733480097A6F1 /* libresolv.tbd in Frameworks */,
 				BDA627B020EF942F00399A42 /* libsigner.a in Frameworks */,
 				ADBDB9381DFEBF1600ED6528 /* libRCTBlob.a in Frameworks */,
 				5E9157361DD0AC6A00FF2AA8 /* libRCTAnimation.a in Frameworks */,
@@ -536,6 +539,7 @@
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				BD0C1B8D20F733480097A6F1 /* libresolv.tbd */,
 				BDA627AF20EF942F00399A42 /* libsigner.a */,
 				2D16E6891FA4F8E400B85C8A /* libReact.a */,
 			);

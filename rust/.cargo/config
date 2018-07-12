@@ -1,0 +1,11 @@
+[target.aarch64-linux-android]
+ar = "/Users/markp/tenzorum/tenz_mobile/NDK/arm64/bin/aarch64-linux-android-ar"
+linker = "/Users/markp/tenzorum/tenz_mobile/NDK/arm64/bin/aarch64-linux-android-gcc"
+
+[target.armv7-linux-androideabi]
+ar = "/Users/markp/tenzorum/tenz_mobile/NDK/arm/bin/arm-linux-androideabi-ar"
+linker = "/Users/markp/tenzorum/tenz_mobile/NDK/arm/bin/arm-linux-androideabi-gcc"
+
+[target.i686-linux-android]
+ar = "/Users/markp/tenzorum/tenz_mobile/NDK/x86/bin/i686-linux-android-ar"
+linker = "/Users/markp/tenzorum/tenz_mobile/NDK/x86/bin/i686-linux-android-gcc"
