@@ -1,4 +1,4 @@
-package com.rnw3boilerplate;
+package com.nativesigner;
 
 import android.app.Application;
 

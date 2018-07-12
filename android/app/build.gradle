@@ -98,7 +98,7 @@ android {
     buildToolsVersion "23.0.1"
 
     defaultConfig {
-        applicationId "com.rnw3boilerplate"
+        applicationId "com.nativesigner"
         minSdkVersion 16
         targetSdkVersion 22
         versionCode 1
