@@ -13,7 +13,6 @@ import {
 } from 'react-native';
 const Web3 = require('web3');
 import Toast from 'react-native-easy-toast';
-const Aion = require('aion-web3');
 
 import Drawer from 'react-native-drawer';
 import DrawerView from './DrawerView';
@@ -21,7 +20,9 @@ import TxPopUp from './TxPopUp';
 // import QRCode from './QRCode';
 
 import FeatherIcon from 'react-native-vector-icons/Feather'
+import FAIcon from 'react-native-vector-icons/FontAwesome'
 import EntypoIcon from 'react-native-vector-icons/Entypo'
+import MatCommIcon from 'react-native-vector-icons/MaterialCommunityIcons'
 
 const privateKey = new Buffer('cf06f0b35515af10b5dfef470e3a1e743470bf9033d06f198b4e829cb2e7ef05', 'hex');
 
@@ -37,11 +38,11 @@ import { ethSign } from "../util/native";
 
 
 type Props = {};
-export default class WalletMain extends Component<Props> {
+export default class Utilities extends Component<Props> {
   static navigationOptions = ({ navigation }) => {
     const { navigate } = navigation;
     return {
-      tabBarIcon: ({tintColor}) => <FeatherIcon size={35} name="circle" color="#1D2533"/>,
+      tabBarIcon: ({tintColor}) => <FeatherIcon size={35} name="square" color="#1D2533"/>,
       headerStyle:
         {
           position: 'absolute',
@@ -107,7 +108,7 @@ export default class WalletMain extends Component<Props> {
           <View style={styles.container}>
             <View style={{ width: width - 40, flexDirection: 'row', marginTop: 20, alignItems: 'center', justifyContent: 'space-between'}}>
               <TouchableOpacity onPress={this._pressHandler}>
-                {/*<Image style={{width: 22, height: 22, marginBottom: 3, resizeMode:'contain'}} source={require('../../../public/send_icon.png')} />*/}
+                <FAIcon size={35} name="user-circle" color="grey"/>
               </TouchableOpacity>
               <Text style={styles.topNavText}>TENZORUM</Text>
               <TouchableOpacity style={{zIndex: 99999999999}} onPress={this.openControlPanel}>
@@ -115,8 +116,8 @@ export default class WalletMain extends Component<Props> {
               </TouchableOpacity>
             </View>
             {/*<QRCode*/}
-              {/*balance={balance}*/}
-              {/*toast={this.refs.toast}*/}
+            {/*balance={balance}*/}
+            {/*toast={this.refs.toast}*/}
             {/*/>*/}
             //TODO: reset account
             <TxPopUp

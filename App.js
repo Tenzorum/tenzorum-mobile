@@ -8,10 +8,13 @@ import WebView from './src/App/WebView'
 
 import Landing from './src/App/Landing'
 import WalletMain from "./src/App/WalletMain";
+import General from "./src/App/General";
+import Utilities from "./src/App/Utilities";
 
 export const Tabs = TabNavigator({
+  General: {screen: General },
   Home: {screen: WalletMain },
-  Weigh: { screen: ScanPublicKey },
+  Weigh: { screen: Utilities },
 }, {
   tabBarPosition: 'bottom',
   animationEnabled: true,
@@ -19,10 +22,10 @@ export const Tabs = TabNavigator({
     showLabel: false,
     backgroundColor: 'white',
     indicatorStyle: {
-      backgroundColor: '#1D2533'
+      backgroundColor: '#eee'
     },
     style: {
-      backgroundColor: '#1D2533',
+      backgroundColor: '#eee',
       borderTopWidth: 0,
       position: 'absolute',
       left: 0,
@@ -52,3 +55,8 @@ export default class App extends Component {
     );
   }
 }
+
+// ghost
+//robot
+//rocket
+//user-secret

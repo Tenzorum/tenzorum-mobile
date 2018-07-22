@@ -16,6 +16,8 @@ import {
 } from 'react-native';
 import axios from 'axios';
 import OneSignal from 'react-native-onesignal';
+import EntypoIcon from 'react-native-vector-icons/Entypo'
+
 
 import {navigate, resetAction} from "../../utils/navigationWrapper";
 import ReactNativeHaptic from 'react-native-haptic';
@@ -40,7 +42,7 @@ export default class ScanPublicKey extends Component {
 
   static navigationOptions = ({ navigation }) => {
     return {
-      tabBarIcon: ({tintColor}) => <Text style={{color: 'white'}}>Scan QR</Text>,
+      tabBarIcon: ({tintColor}) =>  <EntypoIcon size={35} name="emoji-happy" color="#1D2533"/>,
       title: 'Tenzorum',
       headerTitleStyle : { color: 'white'},
       headerStyle:

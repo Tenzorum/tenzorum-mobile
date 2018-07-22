@@ -13,8 +13,11 @@ import {
 } from 'react-native';
 
 import * as Animatable from 'react-native-animatable'
-import {navigate} from "../../utils/navigationWrapper";
-import {color} from "./themes";
+import { navigate } from "../../utils/navigationWrapper";
+import { color } from "./themes";
+import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome'
+import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons'
+
 
 let { height, width } = Dimensions.get('window');
 
@@ -32,30 +35,35 @@ export default class DrawerView extends Component {
 
   render() {
     return (
-      <View style={{ flex:1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'black' }}>
-        <View style={{ marginTop: 40, marginBottom: 80 }}>
-          <Text style={styles.topNavText}>ACCOUNTS</Text>
+      <View style={{ flex:1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#1D2533' }}>
+        <View style={{ marginTop: 40, marginBottom: 80, flexDirection: 'row', justifyContent: 'space-around', width: width/2 }}>
+          <TouchableOpacity onPress={() => navigate('ScanPublicKey')}>
+            <MaterialCommunityIcon size={30} name="qrcode-scan" color={'grey'}/>
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <FontAwesomeIcon size={30} name="user-secret" color={'grey'}/>
+          </TouchableOpacity>
         </View>
-        <View style={{}}>
+        <ScrollView style={{height: height - 800}}>
           <Animatable.View animation="slideInRight">
-            <TouchableOpacity onPress={() => this._accountBoxCall('alpha')} style={[styles.accountBox, {backgroundColor: color.yellow}]}>
-              {/*<Image style={{ width: 25, height: 25, resizeMode:'contain'}} source={require('../../../public/alpha.png')} />*/}
-              <Text style={styles.accountBoxText}>ALPHA</Text>
+            <TouchableOpacity onPress={() => this._accountBoxCall('alpha')} style={[styles.accountBox, {backgroundColor: '#eee'}]}>
+              <Image style={{ width: 30, height: 30, resizeMode:'contain'}} source={require('../../public/aion_logo.png')} />
+              <Text style={styles.accountBoxText}>AION</Text>
             </TouchableOpacity>
           </Animatable.View>
-          <TouchableOpacity onPress={() => this._accountBoxCall('ion')} style={[styles.accountBox, {backgroundColor: color.blue}]}>
-            {/*<Image style={{ width: 25, height: 25, resizeMode:'contain'}} source={require('../../../public/ion.png')} />*/}
-            <Text style={styles.accountBoxText}>ION</Text>
+          <TouchableOpacity onPress={() => this._accountBoxCall('ion')} style={[styles.accountBox, {backgroundColor: '#eee'}]}>
+            <Image style={{ width: 30, height: 30, resizeMode:'contain'}} source={require('../../public/ethereum_logo.png')} />
+            <Text style={styles.accountBoxText}>ETHEREUM</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => this._accountBoxCall('gamma')} style={[styles.accountBox, {backgroundColor: color.lightGrey}]}>
-            {/*<Image style={{ width: 25, height: 40, resizeMode:'contain'}} source={require('../../../public/gamma.png')} />*/}
-            <Text style={styles.accountBoxText}>GAMMA</Text>
+          <TouchableOpacity onPress={() => this._accountBoxCall('gamma')} style={[styles.accountBox, {backgroundColor: '#eee'}]}>
+            <Image style={{ width: 40, height: 40, resizeMode:'contain'}} source={require('../../public/bitcoin_logo.png')} />
+            <Text style={styles.accountBoxText}>BITCOIN</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => this._accountBoxCall('ohm')} style={[styles.accountBox, {backgroundColor: color.magenta}]}>
-            {/*<Image style={{ width: 25, height: 25, resizeMode:'contain'}} source={require('../../../public/ohm.png')} />*/}
-            <Text style={styles.accountBoxText}>OHM</Text>
+          <TouchableOpacity onPress={() => this._accountBoxCall('ohm')} style={[styles.accountBox, {backgroundColor: '#eee'}]}>
+            <Image style={{ width: 30, height: 30, resizeMode:'contain'}} source={require('../../public/eos_logo.png')} />
+            <Text style={styles.accountBoxText}>EOS</Text>
           </TouchableOpacity>
-        </View>
+        </ScrollView>
       </View>
     )
   }
