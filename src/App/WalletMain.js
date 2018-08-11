@@ -13,9 +13,10 @@ import {
 } from 'react-native';
 const Web3 = require('web3');
 import Toast from 'react-native-easy-toast';
-const Aion = require('aion-web3');
-
+const Contacts = require('react-native-contacts');
+// import QRCode from 'react-native-qrcode';
 import Drawer from 'react-native-drawer';
+
 import DrawerView from './DrawerView';
 import TxPopUp from './TxPopUp';
 // import QRCode from './QRCode';
@@ -23,9 +24,9 @@ import TxPopUp from './TxPopUp';
 import FeatherIcon from 'react-native-vector-icons/Feather'
 import EntypoIcon from 'react-native-vector-icons/Entypo'
 
-const privateKey = new Buffer('cf06f0b35515af10b5dfef470e3a1e743470bf9033d06f198b4e829cb2e7ef05', 'hex');
+// const privateKey = new Buffer('cf06f0b35515af10b5dfef470e3a1e743470bf9033d06f198b4e829cb2e7ef05', 'hex');
 
-const privateKeyString = 'cf06f0b35515af10b5dfef470e3a1e743470bf9033d06f198b4e829cb2e7ef05';
+// const privateKeyString = 'cf06f0b35515af10b5dfef470e3a1e743470bf9033d06f198b4e829cb2e7ef05';
 
 const web3 = new Web3();
 web3.setProvider(new web3.providers.HttpProvider('https://ropsten.infura.io/rqmgop6P5BDFqz6yfGla'));
@@ -66,6 +67,13 @@ export default class WalletMain extends Component<Props> {
   };
 
   componentDidMount() {
+    Contacts.getAll((err, contacts) => {
+      if (err) throw err;
+
+      // contacts returned
+      console.log('LE CONTACTS', contacts)
+    });
+
     fetch('https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD')
       .then((response) => response.json())
       .then((responseJson) => {
@@ -87,6 +95,7 @@ export default class WalletMain extends Component<Props> {
   closeControlPanel = () => {
     this._drawer.close()
   };
+
   openControlPanel = () => {
     this._drawer.open()
   };
@@ -114,16 +123,47 @@ export default class WalletMain extends Component<Props> {
                 <EntypoIcon size={35} name="dots-three-vertical" color="#1D2533"/>
               </TouchableOpacity>
             </View>
+            <Input
             {/*<QRCode*/}
               {/*balance={balance}*/}
               {/*toast={this.refs.toast}*/}
             {/*/>*/}
-            //TODO: reset account
-            <TxPopUp
-              isVisible={this.state.visibleModal === 1}
-              _this={this}
-            />
-
+            {/*<TxPopUp*/}
+              {/*isVisible={this.state.visibleModal === 1}*/}
+              {/*_this={this}*/}
+            {/*/>*/}
+            <View style={styles.bottomNav}>
+              <View style={styles.linesAndLogo}>
+                <View
+                  style={{
+                    flex: 1,
+                    borderBottomColor: '#F8E71C',
+                    borderBottomWidth: 1,
+                  }}
+                />
+                <View
+                  style={{
+                    flex: 1,
+                    borderBottomColor: '#F8E71C',
+                    borderBottomWidth: 1,
+                  }}
+                />
+              </View>
+              <View style={styles.buttonContainer}>
+                <View style={{flex: 1, alignItems: 'flex-start'}}>
+                  <Text style={styles.bottomNavTextLarge}>{txCount}</Text>
+                  <Text style={styles.bottomNavTextSmall}>TX COUNT</Text>
+                </View>
+                <View style={{flex: 1, alignItems: 'center'}}>
+                  <Text style={styles.bottomNavTextLarge}>${Math.round(parseInt(balance)/10e17 * parseInt(exchangeRate))}</Text>
+                  <Text style={styles.bottomNavTextSmall}>USD VALUE</Text>
+                </View>
+                <View style={{flex: 1, alignItems: 'flex-end'}}>
+                  <TouchableOpacity onPress={() => this.setState({ visibleModal: 1 })}><Text>Hello</Text></TouchableOpacity>
+                  <Text style={styles.bottomNavTextSmall}>TRANSFER ETH</Text>
+                </View>
+              </View>
+            </View>
           </View>
         </Drawer>
         <Toast

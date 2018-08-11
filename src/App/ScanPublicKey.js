@@ -153,7 +153,7 @@ export default class ScanPublicKey extends Component {
       console.log('AMOUNT FROM SIGN', amount)
       this._sendETH(publicAddress, amount)
     }
-  }
+  };
 
   _signKey = async (msg, socketId) => {
     ReactNativeHaptic.generate('selection');

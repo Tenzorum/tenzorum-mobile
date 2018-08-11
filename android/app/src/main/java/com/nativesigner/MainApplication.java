@@ -3,6 +3,7 @@ package com.nativesigner;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.rt2zz.reactnativecontacts.ReactNativeContacts;
 import com.oblador.vectoricons.VectorIconsPackage;
 import li.yunqi.rnsecurestorage.RNSecureStoragePackage;
 import com.geektime.rnonesignalandroid.ReactNativeOneSignalPackage;
@@ -28,6 +29,7 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new ReactNativeContacts(),
             new VectorIconsPackage(),
             new RNSecureStoragePackage(),
             new ReactNativeOneSignalPackage(),
