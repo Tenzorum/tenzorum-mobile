@@ -16,6 +16,9 @@ import {text} from './themes'
 
 import * as Animatable from 'react-native-animatable'
 
+import FeatherIcon from 'react-native-vector-icons/Feather'
+
+
 let {height, width} = Dimensions.get('window');
 
 export default class Input extends Component {
@@ -28,43 +31,46 @@ export default class Input extends Component {
 
   render() {
     const {} = this.state;
-    const {onChange, _this, placeholder, keyboardType } = this.props;
+    const {onChange, _this, placeholder, keyboardType, autoCapitalize} = this.props;
     return (
-      <TextInput
-        keyboardAppearance='dark'
-        keyboardType={keyboardType}
-        placeholder={placeholder}
-        placeholderTextColor='grey'
-        style={styles.modalInput}
-        selectionColor='#C800B9'
-      />
+      <View style={styles.inputContainer}>
+        <FeatherIcon name="at-sign" size={25} color="#333"/>
+        <TextInput
+          keyboardAppearance='dark'
+          keyboardType={keyboardType}
+          placeholder={placeholder}
+          placeholderTextColor='grey'
+          style={styles.inputStyle}
+          selectionColor='grey'
+          autoCapitalize={autoCapitalize}
+        />
+      </View>
     )
   }
 }
 
 
 const styles = StyleSheet.create({
-  modalContent: {
-    backgroundColor: "transparent",
+  inputContainer: {
     flexDirection: 'row',
-    padding: 22,
-    justifyContent: "space-between",
-    alignItems: "stretch",
-    borderRadius: 6,
-    borderWidth: 2,
-    borderColor: "yellow"
+    backgroundColor: 'white',
+    borderRadius: 10,
+    width: width - 40,
+    height: 50,
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    padding: 10
+
   },
-  modalInput: {
-    fontFamily: 'DIN Condensed',
+  inputStyle: {
+    marginLeft: 10,
     backgroundColor: "transparent",
     height: 35,
     width: 200,
     padding: 5,
-    borderRadius: 6,
-    borderWidth: 2,
-    borderColor: "yellow",
-    color: 'white',
-    marginBottom: 10
+    fontWeight: '900',
+    fontSize: 20,
+    color: '#333',
   },
   topNavText: {
     fontFamily: 'DIN Condensed',

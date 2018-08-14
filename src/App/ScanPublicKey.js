@@ -11,13 +11,18 @@ import {
   Dimensions,
   Platform,
   SafeAreaView,
+  TouchableWithoutFeedback,
   Image,
   View,
 } from 'react-native';
 import axios from 'axios';
 import OneSignal from 'react-native-onesignal';
 import EntypoIcon from 'react-native-vector-icons/Entypo'
+import MaterialCommIcon from 'react-native-vector-icons/MaterialCommunityIcons'
+import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome'
+import Input from './Input'
 
+let { height, width } = Dimensions.get('window');
 
 import {navigate, resetAction} from "../../utils/navigationWrapper";
 import ReactNativeHaptic from 'react-native-haptic';
@@ -27,6 +32,7 @@ import TouchID from 'react-native-touch-id';
 import {color} from "./themes";
 
 import Camera from 'react-native-camera';
+import * as Animatable from "react-native-animatable";
 
 const Web3 = require('web3');
 const web3 = new Web3();
@@ -67,7 +73,12 @@ export default class ScanPublicKey extends Component {
     super(props);
     this.camera = null;
     this.state = {
-      balance: '',
+      exchangeRate: 0,
+      account: 'alpha',
+      visibleModal: null,
+      publicAddress: '',
+      txCount: 0,
+      balance: 0,
       privKey: false,
       pubKey: false,
       mode: 'loading',
@@ -75,6 +86,8 @@ export default class ScanPublicKey extends Component {
       result: null,
       signedTx: null,
       phoneUid: '',
+      showInput: false,
+      socketId: '',
       camera: {
         aspect: Camera.constants.Aspect.fill,
         captureTarget: Camera.constants.CaptureTarget.cameraRoll,
@@ -107,6 +120,26 @@ export default class ScanPublicKey extends Component {
     }
   };
 
+  componentDidMount() {
+    fetch('https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD')
+      .then((response) => response.json())
+      .then((responseJson) => {
+        console.log('RESPONSE: ', responseJson);
+        this.setState({exchangeRate: responseJson.USD})
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+    web3.eth.getTransactionCount('0x37386A1c592Ad2f1CafFdc929805aF78C71b1CE7')
+      .then(txCount => this.setState({txCount}));
+    web3.eth.getCoinbase((err, coinbase) => {
+      const balance = web3.eth.getBalance('0x37386A1c592Ad2f1CafFdc929805aF78C71b1CE7', (err2, balance) => {
+        console.log('balance ' + balance);
+        this.setState({balance});
+      });
+    });
+  }
+
   _sendETH = async (addr, amount) => {
     if(addr && amount) {
       const nonce = await web3.eth.getTransactionCount('0x37386A1c592Ad2f1CafFdc929805aF78C71b1CE7');
@@ -116,7 +149,7 @@ export default class ScanPublicKey extends Component {
       const rawTx = {
         nonce: nonce,
         from: '0x37386A1c592Ad2f1CafFdc929805aF78C71b1CE7',
-        to: '0xd4a0d9531Bf28C26869C526b2cAd2F2eB77D3844',
+        to: '0xa1b02d8c67b0fdcf4e379855868deb470e169cfb',
         value: 100000000000000000,
         gasPrice: 20000000000,
         gasLimit: 3000000,
@@ -128,6 +161,11 @@ export default class ScanPublicKey extends Component {
       tx.sign(privateKey);
 
       const serializedTx = tx.serialize();
+
+      fetch(`https://backend-odczrtlcqz.now.sh/subscribe/${this.state.socketId}`)
+        .then((res) => {
+          console.log('RES: ', res)
+        })
 
       web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'))
         .on('transactionHash', (txHash) => {
@@ -161,11 +199,10 @@ export default class ScanPublicKey extends Component {
       .sign(msg);
 
     console.log('PHONE ID: ', this.state.phoneUid);
-    axios.get(`https://backend-nrmzuwwswb.now.sh/login/${socketId}/${this.state.phoneUid}/${msg}/${account.signature}`)
+    fetch(`https://backend-odczrtlcqz.now.sh/login/${socketId}/${this.state.phoneUid}/${msg}/${account.signature}`)
       .then((res) => {
         console.log('RES: ', res)
       })
-
   };
 
   _saveKeys = () => {
@@ -182,6 +219,7 @@ export default class ScanPublicKey extends Component {
         .then(success => {
           // alert('signing');
           this._signKey(dataArray[0], dataArray[1]);
+          this.setState({socketId: dataArray[1]})
         })
         .catch(error => {
           console.log('ERROR: ', error);
@@ -190,11 +228,23 @@ export default class ScanPublicKey extends Component {
 
 
   };
+  handleViewRef = ref => this.view = ref;
+
+  bounce = () => {
+
+    if (this.state.showInput === false) {
+      this.setState({showInput: !this.state.showInput});
+      this.view.bounceInDown(1000).then(endState => console.log(endState.finished ? 'bounce finished' : 'bounce cancelled'));
+    } else {
+      this.view.bounceOutDown(1000).then(endState => console.log(endState.finished ? this.setState({showInput: !this.state.showInput}) : 'bounce cancelled'));
+    }
+  }
+
 
   render() {
     // const { name } = this.props.navigation.state.params.data;
     const name = 'hello';
-    const {pubKey, privKey, balance} = this.state;
+    const {pubKey, privKey, balance, txCount, exchangeRate} = this.state;
     privKey && pubKey ? this._saveKeys() : null;
     return (
       <Camera
@@ -211,10 +261,39 @@ export default class ScanPublicKey extends Component {
           'trailing': false
         })}
       >
-          <View style={styles.rectangleContainer}>
-              <View style={styles.rectangle}>
-                  <View style={styles.innerRectangle} />
+          <View style={styles.container}>
+            <View style={{ width: width - 40, flexDirection: 'row', marginTop: 20, alignItems: 'center', justifyContent: 'space-between'}}>
+              <TouchableOpacity onPress={() => navigate('WalletMain')}>
+                {/*<View style={styles.loginButton}>*/}
+                  <FontAwesomeIcon style={styles.loginLogo} name="user-circle" color="white" size={35}/>
+                {/*</View>*/}
+              </TouchableOpacity>
+              <Text style={styles.topNavText}>TENZORUM</Text>
+              <TouchableOpacity style={{zIndex: 99999999999}} onPress={this.openControlPanel}>
+                <EntypoIcon size={35} name="dots-three-vertical" color="#1D2533"/>
+              </TouchableOpacity>
+            </View>
+            <TouchableWithoutFeedback>
+              <Animatable.View ref={this.handleViewRef}>
+                {this.state.showInput && <Input autoCapitalize="none"/>}
+              </Animatable.View>
+            </TouchableWithoutFeedback>
+            <View style={styles.lowerContainer}>
+            </View>
+            <View style={styles.buttonContainer}>
+              <View style={{flex: 1, alignItems: 'flex-start'}}>
+                <Text style={styles.bottomNavTextLarge}>{txCount}</Text>
+                <Text style={styles.bottomNavTextSmall}>TX COUNT</Text>
               </View>
+              <View style={{flex: 1, alignItems: 'center'}}>
+                <Text style={styles.bottomNavTextLarge}>${Math.round(parseInt(balance)/10e17 * parseInt(exchangeRate))}</Text>
+                <Text style={styles.bottomNavTextSmall}>USD VALUE</Text>
+              </View>
+              <View style={{flex: 1, alignItems: 'flex-end'}}>
+                <Text style={styles.bottomNavTextLarge}>{(parseInt(balance)/10e17).toFixed(2)}</Text>
+                <Text style={styles.bottomNavTextSmall}>ETHEREUM</Text>
+              </View>
+            </View>
           </View>
       </Camera>
     );
@@ -222,34 +301,86 @@ export default class ScanPublicKey extends Component {
 }
 
 const styles = StyleSheet.create({
+  buttonContainer: {
+    flexDirection: 'row',
+    marginTop: 20,
+  },
+  topNavText: {
+    fontFamily: 'DIN Condensed',
+    color: 'grey',
+    fontSize: 16,
+  },
+  bottomNavTextLarge: {
+    fontFamily: 'DIN Condensed',
+    color: 'white',
+    fontSize: 40,
+    marginBottom: -10
+  },
+  bottomNavTextSmall: {
+    fontFamily: 'DIN Condensed',
+    color: 'grey',
+    fontSize: 13,
+    marginBottom: -5
+  },
+  balanceText: {
+    textAlign: 'center',
+    color: 'white',
+    fontSize: 16
+  },
+  bottomNav: {
+    flexDirection: 'column'
+  },
+  container: {
+    flex: 1,
+    padding: 20,
+    paddingBottom: 30,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    // backgroundColor: 'rgba(255,255,255,0.4)',
+  },
   centerText: {
     flex: 1,
     fontSize: 18,
     padding: 32,
     color: '#777',
   },
-  topNavText: {
-    fontFamily: 'DIN Condensed',
-    color: 'white',
-    fontSize: 16,
-  },
-  textBold: {
-    fontWeight: '500',
-    color: '#000',
-  },
-  tickBoxActive: {
-    width: 10,
-    height: 10,
-    backgroundColor: color.magenta,
-    borderRadius: 2,
-  },
-  tickBoxInactive: {
-    width: 10,
-    height: 10,
-    backgroundColor: 'transparent',
-    borderColor: 'white',
+  innerRectangle: {
+    height: 248,
+    width: 248,
     borderWidth: 2,
-    borderRadius: 2,
+    borderRadius: 25,
+    borderColor: '#ddd',
+    backgroundColor: 'transparent'
+  },
+  loginLogo: {
+    shadowColor: '#333',
+    shadowOffset: {
+      width: 0,
+      height: 3
+    },
+    shadowRadius: 5,
+    shadowOpacity: 1.0
+  },
+  loginButton: {
+    width: 50,
+    height: 50,
+    borderRadius: 10,
+    backgroundColor: '#6455ee',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#333',
+    shadowOffset: {
+      width: 0,
+      height: 3
+    },
+    shadowRadius: 5,
+    shadowOpacity: 1.0
+  },
+  lowerContainer: {
+    width,
+    height: 100,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   buttonText: {
     fontSize: 21,
@@ -259,29 +390,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-between',
     alignItems: 'center',
-  },
-  buttonTouchable: {
-    padding: 16,
-  },
-  boxContent: {
-    backgroundColor: "transparent",
-    flexDirection: 'column',
-    padding: 22,
-    justifyContent: "space-between",
-    alignItems: "stretch",
-    borderRadius: 6,
-    borderWidth: 2,
-    borderColor: "#00FFB5",
-    marginBottom: 40
-  },
-  view: {
-    backgroundColor: 'black'
-  },
-  rectangleContainer: {
-    flex: 1,
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: 'transparent'
   },
   rectangle: {
     borderWidth: 2,
@@ -293,12 +401,4 @@ const styles = StyleSheet.create({
       borderColor: '#ccc',
       backgroundColor: 'transparent'
   },
-  innerRectangle: {
-    height: 248,
-      width: 248,
-      borderWidth: 2,
-      borderRadius: 25,
-      borderColor: '#ddd',
-      backgroundColor: 'transparent'
-  }
 });
