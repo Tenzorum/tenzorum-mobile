@@ -273,11 +273,6 @@ export default class ScanPublicKey extends Component {
                 <EntypoIcon size={35} name="dots-three-vertical" color="#1D2533"/>
               </TouchableOpacity>
             </View>
-            <TouchableWithoutFeedback>
-              <Animatable.View ref={this.handleViewRef}>
-                {this.state.showInput && <Input autoCapitalize="none"/>}
-              </Animatable.View>
-            </TouchableWithoutFeedback>
             <View style={styles.lowerContainer}>
             </View>
             <View style={styles.buttonContainer}>

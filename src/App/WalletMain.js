@@ -9,7 +9,7 @@ import {
   Dimensions,
   ScrollView,
   TouchableOpacity,
-  Platform,
+  Platform, TouchableWithoutFeedback,
 } from 'react-native';
 const Web3 = require('web3');
 import Toast from 'react-native-easy-toast';
@@ -18,6 +18,8 @@ import * as Animatable from 'react-native-animatable';
 // import QRCode from 'react-native-qrcode';
 import Drawer from 'react-native-drawer';
 
+import { init } from "../../utils/ensFunctions";
+init();
 
 import DrawerView from './DrawerView';
 import TxPopUp from './TxPopUp';
@@ -26,9 +28,7 @@ import EntypoIcon from 'react-native-vector-icons/Entypo'
 import MaterialCommIcon from 'react-native-vector-icons/MaterialCommunityIcons'
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome'
 import Input from './Input'
-
 import FeatherIcon from 'react-native-vector-icons/Feather'
-import EntypoIcon from 'react-native-vector-icons/Entypo'
 
 // const privateKey = new Buffer('cf06f0b35515af10b5dfef470e3a1e743470bf9033d06f198b4e829cb2e7ef05', 'hex');
 
@@ -39,7 +39,7 @@ web3.setProvider(new web3.providers.HttpProvider('https://ropsten.infura.io/rqmg
 import {text} from "./themes";
 
 let { height, width } = Dimensions.get('window');
-import {navigate} from "../../utils/navigationWrapper";
+import { navigate } from "../../utils/navigationWrapper";
 import { ethSign } from "../util/native";
 
 
@@ -69,7 +69,10 @@ export default class WalletMain extends Component<Props> {
     account: 'alpha',
     visibleModal: null,
     publicAddress: '',
-    txCount: 0
+    txCount: 0,
+    showInput: false,
+    ensDomain: '',
+    username: false
   };
 
 
@@ -102,7 +105,18 @@ export default class WalletMain extends Component<Props> {
 
   handleViewRef = ref => this.view = ref;
 
-  bounce = () => this.view.bounce(800).then(endState => console.log(endState.finished ? 'bounce finished' : 'bounce cancelled'));
+  bounce = () => {
+    if (this.state.ensDomain.length !== 0) {
+      this.setState({username: this.state.ensDomain})
+    }
+
+    if (this.state.showInput === false) {
+      this.setState({showInput: !this.state.showInput});
+      this.view.bounceInDown(1000).then(endState => console.log(endState.finished ? 'bounce finished' : 'bounce cancelled'));
+    } else {
+      this.view.bounceOutDown(1000).then(endState => console.log(endState.finished ? this.setState({showInput: !this.state.showInput}) : 'bounce cancelled'));
+    }
+  };
 
   closeControlPanel = () => {
     this._drawer.close()
@@ -135,47 +149,29 @@ export default class WalletMain extends Component<Props> {
                 <EntypoIcon size={35} name="dots-three-vertical" color="white"/>
               </TouchableOpacity>
             </View>
-            <View style={{width, flex: 1, flexDirection: 'row', padding: 20}}>
-              <View style={{width: 100, height: 100, backgroundColor: '#eee', borderRadius: 10, alignItems: 'center', justifyContent: 'center'}}>
-                <Image style={{width: 70, resizeMode: 'contain'}} source={require('../../public/my_avatar.png')}/>
+            <View style={{width, flex: 1, flexDirection: 'column', padding: 20}}>
+              <View style={{flexDirection: 'row'}}>
+                <View style={{width: 100, height: 100, alignItems: 'center', justifyContent: 'center'}}>
+                  <FontAwesomeIcon style={styles.loginLogo} name="user-circle" color="white" size={80}/>
+                </View>
+                <View style={{flex: 1, height: 100, backgroundColor: 'transparent', borderRadius: 10, alignItems: 'flex-start', justifyContent: 'center'}}>
+                  <View style={{height: 10, width: width - 280, backgroundColor: '#14aff8', borderRadius: 5}}/>
+                  <View style={{height: 10, width: width - 230, backgroundColor: '#00f877', borderRadius: 5, marginTop: 20}}/>
+                </View>
               </View>
-              <View style={{flex: 1, height: 100, backgroundColor: '#eee', borderRadius: 10, alignItems: 'center', justifyContent: 'center'}}>
-
-              </View>
+              <View style={{ borderBottomColor: '#aaa', borderBottomWidth: 1, marginTop: 10}}/>
+              <TouchableOpacity style={{width, flexDirection: 'row', padding: 10}} onPress={this.bounce}>
+                <Text style={{ fontSize: 20, color: 'white',  }}>@ {this.state.username ? this.state.username : <Text style={{ fontSize: 20, color: '#999999',}}>Set username</Text>}</Text>
+              </TouchableOpacity>
+              <TouchableWithoutFeedback>
+                <Animatable.View ref={this.handleViewRef}>
+                  {this.state.showInput && <Input onChangeText={(e) => this.setState({ensDomain: e})} value={this.state.ensDomain} autoCapitalize="none"/>}
+                </Animatable.View>
+              </TouchableWithoutFeedback>
             </View>
-            <View style={styles.bottomNav}>
-              <View style={styles.linesAndLogo}>
-                <View
-                  style={{
-                    flex: 1,
-                    borderBottomColor: '#4ef868',
-                    borderBottomWidth: 1,
-                  }}
-                />
-                <View
-                  style={{
-                    flex: 1,
-                    borderBottomColor: '#58ebf8',
-                    borderBottomWidth: 1,
-                  }}
-                />
-              </View>
-              <View style={styles.buttonContainer}>
-                <View style={{flex: 1, alignItems: 'flex-start'}}>
-                  <Text style={styles.bottomNavTextLarge}>{txCount}</Text>
-                  <Text style={styles.bottomNavTextSmall}>TX COUNT</Text>
-                </View>
-                <View style={{flex: 1, alignItems: 'center'}}>
-                  <Text style={styles.bottomNavTextLarge}>${Math.round(parseInt(balance)/10e17 * parseInt(exchangeRate))}</Text>
-                  <Text style={styles.bottomNavTextSmall}>USD VALUE</Text>
-                </View>
-                <View style={{flex: 1, alignItems: 'flex-end'}}>
-                  <TouchableOpacity onPress={() => this.setState({ visibleModal: 1 })}>
-                    <Text style={styles.bottomNavTextLarge}>{(parseInt(balance)/10e17).toFixed(2)}</Text>
-                  </TouchableOpacity>
-                  <Text style={styles.bottomNavTextSmall}>ETHEREUM</Text>
-                </View>
-              </View>
+            <View style={{width, flex: 1, flexDirection: 'column', padding: 20}}>
+              <Image style={{width: width - 40, marginBottom: 3, resizeMode:'contain'}} source={require('../../public/wot-mock.png')}/>
+              <Image style={{width: width - 40, marginBottom: 3, resizeMode:'contain'}} source={require('../../public/pdevices.png')}/>
             </View>
           </View>
         </Drawer>

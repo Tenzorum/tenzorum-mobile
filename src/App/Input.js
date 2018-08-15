@@ -31,11 +31,13 @@ export default class Input extends Component {
 
   render() {
     const {} = this.state;
-    const {onChange, _this, placeholder, keyboardType, autoCapitalize} = this.props;
+    const {onChangeText, _this, placeholder, keyboardType, autoCapitalize, value} = this.props;
     return (
       <View style={styles.inputContainer}>
         <FeatherIcon name="at-sign" size={25} color="#333"/>
         <TextInput
+          value={value}
+          onChangeText={onChangeText}
           keyboardAppearance='dark'
           keyboardType={keyboardType}
           placeholder={placeholder}
