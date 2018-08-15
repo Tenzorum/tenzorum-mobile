@@ -18,7 +18,7 @@ import * as Animatable from 'react-native-animatable';
 // import QRCode from 'react-native-qrcode';
 import Drawer from 'react-native-drawer';
 
-import { init } from "../../utils/ensFunctions";
+import { init, checkSubdomainOwner, newSubdomain } from "../../utils/ensFunctions";
 init();
 
 import DrawerView from './DrawerView';
@@ -106,8 +106,10 @@ export default class WalletMain extends Component<Props> {
   handleViewRef = ref => this.view = ref;
 
   bounce = () => {
-    if (this.state.ensDomain.length !== 0) {
-      this.setState({username: this.state.ensDomain})
+    const {ensDomain} = this.state;
+    if (ensDomain.length !== 0) {
+      newSubdomain(ensDomain, 'tenz-id.eth', '0x37386A1c592Ad2f1CafFdc929805aF78C71b1CE7', '0x37386A1c592Ad2f1CafFdc929805aF78C71b1CE7');
+      this.setState({username: ensDomain})
     }
 
     if (this.state.showInput === false) {
@@ -116,6 +118,14 @@ export default class WalletMain extends Component<Props> {
     } else {
       this.view.bounceOutDown(1000).then(endState => console.log(endState.finished ? this.setState({showInput: !this.state.showInput}) : 'bounce cancelled'));
     }
+  };
+
+  _setENS = (e) => {
+    const {ensDomain} = this.state;
+
+    this.setState({ensDomain: e}, () => {
+      checkSubdomainOwner(ensDomain, 'tenz-id.eth');
+    })
   };
 
   closeControlPanel = () => {
@@ -165,7 +175,7 @@ export default class WalletMain extends Component<Props> {
               </TouchableOpacity>
               <TouchableWithoutFeedback>
                 <Animatable.View ref={this.handleViewRef}>
-                  {this.state.showInput && <Input onChangeText={(e) => this.setState({ensDomain: e})} value={this.state.ensDomain} autoCapitalize="none"/>}
+                  {this.state.showInput && <Input onChangeText={this._setENS} value={this.state.ensDomain} autoCapitalize="none"/>}
                 </Animatable.View>
               </TouchableWithoutFeedback>
             </View>
