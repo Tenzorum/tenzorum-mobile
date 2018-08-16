@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Parity.  If not, see <http://www.gnu.org/licenses/>.
 
-'use strict'
+'use strict';
 
 import SecureStorage from 'react-native-secure-storage'
 
@@ -28,14 +28,28 @@ export const deleteAccount = (account) => SecureStorage.deleteItem(account.addre
 export const saveAccount = (account) =>
   SecureStorage.setItem(account.address, JSON.stringify(account, null, 0), accountsStore)
 
-export const saveAccounts = (accounts) => accounts.forEach(saveAccount)
+export const saveAccounts = (accounts) => accounts.forEach(saveAccount);
+
+const getFirst = (arr) => arr[0];
+
+const getPrik = (obj) => obj.privKey;
+
+const getPuck = (obj) => obj.address;
+
+export const getPrivateKey = () => {
+  return getPrik(getFirst(loadAccounts()));
+};
+
+export const getPublicKey = () => {
+  return getPuck(getFirst(loadAccounts()));
+};
 
 export const loadAccounts = () => {
   if (!SecureStorage) {
     return Promise.resolve([])
   }
 
-  return SecureStorage.getAllItems(accountsStore).then(
+  return SecureStorage.getAllKeys(accountsStore).then(
     accounts => Object.values(accounts).map(account => JSON.parse(account))
   )
 }

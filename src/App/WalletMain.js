@@ -18,7 +18,7 @@ import * as Animatable from 'react-native-animatable';
 // import QRCode from 'react-native-qrcode';
 import Drawer from 'react-native-drawer';
 
-import { init, checkSubdomainOwner, newSubdomain } from "../../utils/ensFunctions";
+import {init, checkSubdomainOwner, newSubdomain, loadAccount} from "../../utils/ensFunctions";
 init();
 
 import DrawerView from './DrawerView';
@@ -30,10 +30,6 @@ import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome'
 import Input from './Input'
 import FeatherIcon from 'react-native-vector-icons/Feather'
 
-// const privateKey = new Buffer('cf06f0b35515af10b5dfef470e3a1e743470bf9033d06f198b4e829cb2e7ef05', 'hex');
-
-// const privateKeyString = 'cf06f0b35515af10b5dfef470e3a1e743470bf9033d06f198b4e829cb2e7ef05';
-
 const web3 = new Web3();
 web3.setProvider(new web3.providers.HttpProvider('https://ropsten.infura.io/rqmgop6P5BDFqz6yfGla'));
 import {text} from "./themes";
@@ -41,6 +37,7 @@ import {text} from "./themes";
 let { height, width } = Dimensions.get('window');
 import { navigate } from "../../utils/navigationWrapper";
 import { ethSign } from "../util/native";
+import {getPrivateKey, getPublicKey, loadAccounts} from "../util/db";
 
 
 type Props = {};
@@ -83,6 +80,9 @@ export default class WalletMain extends Component<Props> {
       // contacts returned
       console.log('LE CONTACTS', contacts)
     });
+    this._getAccounts;
+    // console.log('PUBLICKEY: ', getPublicKey());
+    // console.log('PRIVATEKEY: ', getPrivateKey());
 
     fetch('https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD')
       .then((response) => response.json())
@@ -102,6 +102,15 @@ export default class WalletMain extends Component<Props> {
       });
     });
   }
+
+  _getAccounts = async () => {
+    const accounts = await loadAccounts();
+    const account1 = accounts.length;
+    console.log("address");
+    console.log(account1);
+    // console.log(account1.address);
+  }
+
 
   handleViewRef = ref => this.view = ref;
 

@@ -5,11 +5,13 @@ web3.setProvider(new web3.providers.HttpProvider('https://ropsten.infura.io/rqmg
 let factoryContract = null;
 const factoryAbi = [{"constant":false,"inputs":[{"name":"_topLevelDomain","type":"string"},{"name":"_subDomain","type":"string"},{"name":"_owner","type":"address"},{"name":"_target","type":"address"}],"name":"newSubdomain","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"anonymous":false,"inputs":[{"indexed":true,"name":"creator","type":"address"},{"indexed":true,"name":"owner","type":"address"},{"indexed":false,"name":"domain","type":"string"},{"indexed":false,"name":"subdomain","type":"string"}],"name":"SubdomainCreated","type":"event"},{"constant":true,"inputs":[{"name":"_subDomain","type":"string"},{"name":"_topLevelDomain","type":"string"}],"name":"subDomainOwner","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"}]
 const emptyAddress = '0x0000000000000000000000000000000000000000';
-  // Local
+
+// Local
 // const factoryAddress = "0x9fbda871d559710256a2502a2517b794b482db40";
 
 // // Ropsten
 const factoryAddress = "0xf9fa2ff44a474b6d20500969bda61c2827fbc6b6";
+
 // Mainnet
 //factoryAddress: "0x21aa8d3eee8be2333ed180e9a5a8c0729c9b652c",
 
@@ -76,6 +78,39 @@ export const newSubdomain = (subdomain, domain, owner, target) => {
     }
   )
 };
+
+export const setSubdomain = async () => {
+    const data = await factoryContract.methods.newSubdomain(subdomain, domain, owner, target).encodeABI();
+    const nonce = await web3.eth.getTransactionCount(account1.publicKey);
+    const chainId = await web3.eth.net.getId();
+
+    const rawTx = {
+      "nonce": nonce,
+      "from": account1.publicKey,
+      "to": "0xdb0a1cf7ec068fd48a3f5869bf4f60b62e4ecb5e",
+      "value": "0x0",
+      "gas": 40000,
+      "gasPrice": 500000000000, // converts the gwei price to wei
+      "chainId": 3,
+      "data": web3.utils.toHex(data)
+    };
+
+    const tx = new Tx(rawTx);
+    tx.sign(account1.privateKey);
+
+    const serializedTx = tx.serialize();
+
+    web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'))
+      .on('transactionHash', (txHash) => {
+        console.log('Tokens transferred:' , txHash);
+      })
+      .on('confirmation', (conf, msg) => {
+        //after account gets money
+        if (conf === 0) {
+          console.log('& Confirmed:' , conf);
+        }
+      })
+}
 
 export const initActions = () => {
   $("#domain").on("change", function() {

@@ -38,14 +38,13 @@
 		ADBDB9381DFEBF1600ED6528 /* libRCTBlob.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ADBDB9271DFEBF0700ED6528 /* libRCTBlob.a */; };
 		B4AF5CE91AD141D9AA1830DE /* Zocial.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1DAAFC7DE6BC453FABE89DBA /* Zocial.ttf */; };
 		BD0C1BB820F733480097A6F1 /* libresolv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = BD0C1B8D20F733480097A6F1 /* libresolv.tbd */; };
+		BD3DC0252124027B00B4097C /* libRNSecureStorage.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BDA627AE20EF931300399A42 /* libRNSecureStorage.a */; };
 		BD4CC7BF2096FB4000F64966 /* libReactNativeHaptic.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BD77CAFD2095866800EC69CB /* libReactNativeHaptic.a */; };
-		BDA627B020EF942F00399A42 /* libsigner.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BDA627AF20EF942F00399A42 /* libsigner.a */; };
 		C0144F46615B47BDB579761F /* EvilIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = AD16D60E9C374BAB97DAB86B /* EvilIcons.ttf */; };
 		CB6F39B4E1EB4B1CB72DA814 /* Feather.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E36EEF8233EF4BB3983283C7 /* Feather.ttf */; };
 		D88E836E565C46728230C31F /* libRCTContacts.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9854ED4D3E5B48829170FD41 /* libRCTContacts.a */; };
 		E4D213D8212D444C982B2CB0 /* libReactNativeHaptic.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C8AA698C606447A28CE49C60 /* libReactNativeHaptic.a */; };
 		F31A5892B9A44A16AE326C4F /* libRNVectorIcons.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B57A270BAC1F4319B69E78BE /* libRNVectorIcons.a */; };
-		FA535A7BB4F745A4914A18C4 /* libRNSecureStorage.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DD11CC68EB60487F9781814D /* libRNSecureStorage.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -435,7 +434,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				BD0C1BB820F733480097A6F1 /* libresolv.tbd in Frameworks */,
-				BDA627B020EF942F00399A42 /* libsigner.a in Frameworks */,
 				ADBDB9381DFEBF1600ED6528 /* libRCTBlob.a in Frameworks */,
 				5E9157361DD0AC6A00FF2AA8 /* libRCTAnimation.a in Frameworks */,
 				146834051AC3E58100842450 /* libReact.a in Frameworks */,
@@ -450,11 +448,11 @@
 				832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */,
 				00C302EA1ABCBA2D00DB3ED1 /* libRCTVibration.a in Frameworks */,
 				139FDEF61B0652A700C62182 /* libRCTWebSocket.a in Frameworks */,
+				BD3DC0252124027B00B4097C /* libRNSecureStorage.a in Frameworks */,
 				A28F1F88788642F297CA433E /* libRNCamera.a in Frameworks */,
 				E4D213D8212D444C982B2CB0 /* libReactNativeHaptic.a in Frameworks */,
 				015E5F9971CF4304B5B697EF /* libTouchID.a in Frameworks */,
 				21FEF97CFFEA40C4976128F8 /* libRCTOneSignal.a in Frameworks */,
-				FA535A7BB4F745A4914A18C4 /* libRNSecureStorage.a in Frameworks */,
 				F31A5892B9A44A16AE326C4F /* libRNVectorIcons.a in Frameworks */,
 				D88E836E565C46728230C31F /* libRCTContacts.a in Frameworks */,
 			);

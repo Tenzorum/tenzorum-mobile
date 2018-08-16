@@ -1,15 +1,16 @@
 import React, { Component } from 'react';
 import { StackNavigator, TabNavigator } from 'react-navigation';
-
 import NavigatorService from './utils/navigationWrapper';
 import ScanPublicKey from './src/App/ScanPublicKey'
 // import QRCode from './src/App/QRCode'
 import WebView from './src/App/WebView'
+import {createWallet} from "./utils/ether";
 
 import Landing from './src/App/Landing'
 import WalletMain from "./src/App/WalletMain";
 import General from "./src/App/General";
 import Utilities from "./src/App/Utilities";
+import {saveAccount, loadAccounts} from "./src/util/db";
 
 export const Tabs = TabNavigator({
   General: {screen: General },
@@ -45,6 +46,11 @@ export const Main = StackNavigator({
 }, { headerMode: 'none'});
 
 export default class App extends Component {
+
+  componentDidMount() {
+    createWallet();
+  }
+
   render() {
     return (
       <Main

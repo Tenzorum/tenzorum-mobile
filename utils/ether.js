@@ -4,6 +4,8 @@ const Wallet = require('ethereumjs-wallet');
 const hdkey = require('ethereumjs-wallet/hdkey');
 const bip39 = require('bip39');
 
+import {loadAccounts, saveAccount} from "../src/util/db";
+
 
 const privateKey = new Buffer('cf06f0b35515af10b5dfef470e3a1e743470bf9033d06f198b4e829cb2e7ef05', 'hex');
 
@@ -20,6 +22,24 @@ const publicAddress = '0x37386A1c592Ad2f1CafFdc929805aF78C71b1CE7';
 
 //TwoUpContract Object
 const TwoUpContract = new web3.eth.Contract(abi, contractAddress);
+
+
+export const createWallet = async () => {
+  // const accounts = await loadAccounts();
+  // if (accounts.length === 0) {
+    console.log('Account Saved ✅')
+    const newWallet = Wallet.generate();
+    const privKey = newWallet.getPrivateKeyString();
+    const { address } = web3.eth.accounts.privateKeyToAccount(privKey);
+    console.log('PRIVKEY: ', privKey);
+    console.log('PUBKEY: ', address);
+    const account = {
+      "privKey": privKey.toString(),
+      "address": address.toString()
+    };
+    saveAccount(account);
+  // }
+};
 
 export const _sendETH = async (_addr, _amount, _data) => {
   if(addr && amount) {
