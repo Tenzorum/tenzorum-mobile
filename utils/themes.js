@@ -14,6 +14,7 @@ const color = {
   yellow: '#FFFF00',
   magenta: '#FF00EC',
   blue: '#17DAD9',
+  component: 'white'
 };
 
 // font sizes
@@ -24,6 +25,8 @@ const fontSize = {
   large: 24,
   xlarge: 32,
 };
+
+
 
 // text styles
 const text = {

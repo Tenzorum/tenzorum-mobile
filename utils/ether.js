@@ -34,8 +34,8 @@ export const createWallet = async () => {
     console.log('PRIVKEY: ', privKey);
     console.log('PUBKEY: ', address);
     const account = {
-      "privKey": privKey.toString(),
-      "address": address.toString()
+      "privKey": privKey.substring(2),
+      "address": address.substring(2)
     };
     saveAccount(account);
   // }

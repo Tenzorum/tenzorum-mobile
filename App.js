@@ -40,9 +40,9 @@ export const Tabs = TabNavigator({
   }});
 
 export const Main = StackNavigator({
+  WalletMain: { screen: WalletMain },
   ScanPublicKey: { screen: ScanPublicKey },
   Home: { screen: Tabs },
-  WalletMain: { screen: WalletMain },
 }, { headerMode: 'none'});
 
 export default class App extends Component {

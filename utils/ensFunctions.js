@@ -4,7 +4,6 @@ web3.setProvider(new web3.providers.HttpProvider('https://ropsten.infura.io/rqmg
 
 let factoryContract = null;
 const factoryAbi = [{"constant":false,"inputs":[{"name":"_topLevelDomain","type":"string"},{"name":"_subDomain","type":"string"},{"name":"_owner","type":"address"},{"name":"_target","type":"address"}],"name":"newSubdomain","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"anonymous":false,"inputs":[{"indexed":true,"name":"creator","type":"address"},{"indexed":true,"name":"owner","type":"address"},{"indexed":false,"name":"domain","type":"string"},{"indexed":false,"name":"subdomain","type":"string"}],"name":"SubdomainCreated","type":"event"},{"constant":true,"inputs":[{"name":"_subDomain","type":"string"},{"name":"_topLevelDomain","type":"string"}],"name":"subDomainOwner","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"}]
-const emptyAddress = '0x0000000000000000000000000000000000000000';
 
 // Local
 // const factoryAddress = "0x9fbda871d559710256a2502a2517b794b482db40";
@@ -47,18 +46,7 @@ export const loadAccount = () => {
 
 export const checkSubdomainOwner = (subdomain, domain) => {
   factoryContract.methods.subDomainOwner(subdomain, domain).call()
-    .then(addr => {
-      if(addr === emptyAddress){
-        console.log("It's available! Go for it tiger!");
-        // $('#subdomain').addClass('is-valid');
-      } else if(addr === currentAccount) {
-        console.log("It's your domain! Edit away!");
-        // $('#subdomain').addClass('is-valid');
-      } else {
-        console.log("Oops! It's already taken by: " + addr);
-        // $('#subdomain').addClass('is-invalid');
-      }
-    })
+    .then(addr => addr)
     .catch(err => console.log(err));
 };
 

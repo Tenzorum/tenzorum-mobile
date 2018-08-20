@@ -29,6 +29,7 @@ import MaterialCommIcon from 'react-native-vector-icons/MaterialCommunityIcons'
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome'
 import Input from './Input'
 import FeatherIcon from 'react-native-vector-icons/Feather'
+import Button from '../components/Button'
 
 const web3 = new Web3();
 web3.setProvider(new web3.providers.HttpProvider('https://ropsten.infura.io/rqmgop6P5BDFqz6yfGla'));
@@ -38,6 +39,7 @@ let { height, width } = Dimensions.get('window');
 import { navigate } from "../../utils/navigationWrapper";
 import { ethSign } from "../util/native";
 import {getPrivateKey, getPublicKey, loadAccounts} from "../util/db";
+import EnsRegistry from "../components/EnsRegistry";
 
 
 type Props = {};
@@ -69,7 +71,9 @@ export default class WalletMain extends Component<Props> {
     txCount: 0,
     showInput: false,
     ensDomain: '',
-    username: false
+    ensAvailable: false,
+    username: false,
+    showEnsModal: false
   };
 
 
@@ -103,6 +107,11 @@ export default class WalletMain extends Component<Props> {
     });
   }
 
+  componentDidUpdate() {
+    const {ensDomain} = this.state;
+    checkSubdomainOwner(ensDomain, 'tenz-id');
+  }
+
   _getAccounts = async () => {
     const accounts = await loadAccounts();
     const account1 = accounts.length;
@@ -113,6 +122,8 @@ export default class WalletMain extends Component<Props> {
 
 
   handleViewRef = ref => this.view = ref;
+
+  showEnsModal  = () => this.setState({ showEnsModal: true });
 
   bounce = () => {
     const {ensDomain} = this.state;
@@ -129,13 +140,8 @@ export default class WalletMain extends Component<Props> {
     }
   };
 
-  _setENS = (e) => {
-    const {ensDomain} = this.state;
+  _setENS = (e) => this.setState({ensDomain: e});
 
-    this.setState({ensDomain: e}, () => {
-      checkSubdomainOwner(ensDomain, 'tenz-id.eth');
-    })
-  };
 
   closeControlPanel = () => {
     this._drawer.close()
@@ -146,7 +152,7 @@ export default class WalletMain extends Component<Props> {
   };
 
   render() {
-    const {account, balance, publicAddress, exchangeRate, txCount} = this.state;
+    const { showEnsModal } = this.state;
     return (
       <View style={{flex: 1}}>
         <Drawer
@@ -179,14 +185,10 @@ export default class WalletMain extends Component<Props> {
                 </View>
               </View>
               <View style={{ borderBottomColor: '#aaa', borderBottomWidth: 1, marginTop: 10}}/>
-              <TouchableOpacity style={{width, flexDirection: 'row', padding: 10}} onPress={this.bounce}>
+              <TouchableOpacity style={{width, flexDirection: 'row', padding: 10}} onPress={this.showEnsModal}>
                 <Text style={{ fontSize: 20, color: 'white',  }}>@ {this.state.username ? this.state.username : <Text style={{ fontSize: 20, color: '#999999',}}>Set username</Text>}</Text>
               </TouchableOpacity>
-              <TouchableWithoutFeedback>
-                <Animatable.View ref={this.handleViewRef}>
-                  {this.state.showInput && <Input onChangeText={this._setENS} value={this.state.ensDomain} autoCapitalize="none"/>}
-                </Animatable.View>
-              </TouchableWithoutFeedback>
+              <EnsRegistry isVisible={showEnsModal}/>
             </View>
             <View style={{width, flex: 1, flexDirection: 'column', padding: 20}}>
               <Image style={{width: width - 40, marginBottom: 3, resizeMode:'contain'}} source={require('../../public/wot-mock.png')}/>
@@ -217,7 +219,7 @@ const styles = StyleSheet.create({
     paddingBottom: 30,
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#141414',
+    backgroundColor: '#eee',
   },
   drawer: {
     backgroundColor: 'black',
