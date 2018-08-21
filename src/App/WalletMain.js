@@ -38,7 +38,7 @@ import {text} from "./themes";
 let { height, width } = Dimensions.get('window');
 import { navigate } from "../../utils/navigationWrapper";
 import { ethSign } from "../util/native";
-import {getPrivateKey, getPublicKey, loadAccounts} from "../util/db";
+import { getPrivateKey, getPublicKey, loadAccounts } from "../util/db";
 import EnsRegistry from "../components/EnsRegistry";
 
 
@@ -85,8 +85,6 @@ export default class WalletMain extends Component<Props> {
       console.log('LE CONTACTS', contacts)
     });
     this._getAccounts;
-    // console.log('PUBLICKEY: ', getPublicKey());
-    // console.log('PRIVATEKEY: ', getPrivateKey());
 
     fetch('https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD')
       .then((response) => response.json())
@@ -106,18 +104,12 @@ export default class WalletMain extends Component<Props> {
       });
     });
   }
-
-  componentDidUpdate() {
-    const {ensDomain} = this.state;
-    checkSubdomainOwner(ensDomain, 'tenz-id');
-  }
-
+  
   _getAccounts = async () => {
     const accounts = await loadAccounts();
     const account1 = accounts.length;
     console.log("address");
     console.log(account1);
-    // console.log(account1.address);
   }
 
 
@@ -139,9 +131,6 @@ export default class WalletMain extends Component<Props> {
       this.view.bounceOutDown(1000).then(endState => console.log(endState.finished ? this.setState({showInput: !this.state.showInput}) : 'bounce cancelled'));
     }
   };
-
-  _setENS = (e) => this.setState({ensDomain: e});
-
 
   closeControlPanel = () => {
     this._drawer.close()
