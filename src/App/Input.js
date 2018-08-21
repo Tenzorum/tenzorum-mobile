@@ -61,7 +61,14 @@ const styles = StyleSheet.create({
     height: 50,
     alignItems: 'center',
     justifyContent: 'flex-start',
-    padding: 10
+    padding: 10,
+    shadowColor: '#aaa',
+    shadowOffset: {
+      width: 0,
+      height: 3
+    },
+    shadowRadius: 2,
+    shadowOpacity: 1.0
 
   },
   inputStyle: {

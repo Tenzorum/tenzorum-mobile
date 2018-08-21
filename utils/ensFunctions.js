@@ -44,10 +44,12 @@ export const loadAccount = () => {
   });
 };
 
-export const checkSubdomainOwner = (subdomain, domain) => {
-  factoryContract.methods.subDomainOwner(subdomain, domain).call()
-    .then(addr => addr)
-    .catch(err => console.log(err));
+export const checkSubdomainOwner = async (subdomain, domain) => {
+  try {
+    return await factoryContract.methods.subDomainOwner(subdomain, domain).call();
+  } catch(e) {
+    return "Error connecting to subdomain provider";
+  }
 };
 
 export const newSubdomain = (subdomain, domain, owner, target) => {

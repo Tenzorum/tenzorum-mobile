@@ -47,6 +47,10 @@ export default class EnsRegistry extends Component<Props> {
 
 
   _checkENS = async (ensUsername) => {
+    if (ensUsername.length === 0) {
+      this.setState({ensAvailable: false, ensMessage: 'Enter a valid or unempty username'});
+      return;
+    }
     console.log('the letter to check', ensUsername)
     const {ensDomain} = this.state;
     const addr = await checkSubdomainOwner(ensUsername, 'tenz-id');
@@ -55,7 +59,7 @@ export default class EnsRegistry extends Component<Props> {
 
     if (addr === emptyAddress) {
       console.log("It's available! Go for it tiger!");
-      this.setState({ensAvailable: true, ensMessage: 'ENS username available'})
+      this.setState({ensAvailable: true, ensMessage: 'ENS username available'});
     } else if(addr === currentAccount) {
       this.setState({ensAvailable: true, ensMessage: "It's your domain! Edit away!"});
     } else {
@@ -77,10 +81,10 @@ export default class EnsRegistry extends Component<Props> {
       <Modal isVisible={isVisible}>
         <View style={styles.mainContainer}>
           <Input onChangeText={this._checkENS} value={this.state.ensDomain} autoCapitalize="none"/>
-          <Text style={{color: ensAvailable ? 'green' : 'red'}}>
+          <Text style={{marginTop: 10, height: 25, color: ensAvailable ? 'green' : 'red'}}>
             {ensMessage}
           </Text>
-          <Button onPress={this._setENS} disabled={!ensAvailable}><Text style={{color: 'black'}}>Get</Text></Button>
+          <Button onPress={this._setENS} disabled={!ensAvailable}><Text style={{color: 'white', fontWeight: '900', fontSize: 15}}>Get</Text></Button>
         </View>
       </Modal>
     )
@@ -92,7 +96,7 @@ const styles = StyleSheet.create({
   mainContainer: {
     backgroundColor: color.component,
     borderRadius: 10,
-    height: 250,
+    height: 160,
     padding: 20,
     width: width - 40,
   },
