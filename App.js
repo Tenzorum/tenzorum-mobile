@@ -4,7 +4,7 @@ import NavigatorService from './utils/navigationWrapper';
 import ScanPublicKey from './src/App/ScanPublicKey'
 // import QRCode from './src/App/QRCode'
 import WebView from './src/App/WebView'
-import {createWallet} from "./utils/ether";
+import { createWallet } from "./utils/ether";
 
 import Landing from './src/App/Landing'
 import WalletMain from "./src/App/WalletMain";

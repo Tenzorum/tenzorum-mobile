@@ -64,84 +64,15 @@ export default class WalletMain extends Component<Props> {
 
   state = {
     exchangeRate: 0,
-    balance: 0,
-    account: 'alpha',
-    visibleModal: null,
-    publicAddress: '',
-    txCount: 0,
-    showInput: false,
-    ensDomain: '',
-    ensAvailable: false,
-    username: false,
-    showEnsModal: false
   };
 
 
   componentDidMount() {
-    Contacts.getAll((err, contacts) => {
-      if (err) throw err;
 
-      // contacts returned
-      console.log('LE CONTACTS', contacts)
-    });
-    this._getAccounts;
-
-    fetch('https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD')
-      .then((response) => response.json())
-      .then((responseJson) => {
-        console.log('RESPONSE: ', responseJson);
-        this.setState({exchangeRate: responseJson.USD})
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-    web3.eth.getTransactionCount('0x37386A1c592Ad2f1CafFdc929805aF78C71b1CE7')
-      .then(txCount => this.setState({txCount}));
-    web3.eth.getCoinbase((err, coinbase) => {
-      const balance = web3.eth.getBalance('0x37386A1c592Ad2f1CafFdc929805aF78C71b1CE7', (err2, balance) => {
-        console.log('balance ' + balance);
-        this.setState({balance});
-      });
-    });
   }
-  
-  _getAccounts = async () => {
-    const accounts = await loadAccounts();
-    const account1 = accounts.length;
-    console.log("address");
-    console.log(account1);
-  }
-
-
-  handleViewRef = ref => this.view = ref;
-
-  showEnsModal  = () => this.setState({ showEnsModal: true });
-
-  bounce = () => {
-    const {ensDomain} = this.state;
-    if (ensDomain.length !== 0) {
-      newSubdomain(ensDomain, 'tenz-id.eth', '0x37386A1c592Ad2f1CafFdc929805aF78C71b1CE7', '0x37386A1c592Ad2f1CafFdc929805aF78C71b1CE7');
-      this.setState({username: ensDomain})
-    }
-
-    if (this.state.showInput === false) {
-      this.setState({showInput: !this.state.showInput});
-      this.view.bounceInDown(1000).then(endState => console.log(endState.finished ? 'bounce finished' : 'bounce cancelled'));
-    } else {
-      this.view.bounceOutDown(1000).then(endState => console.log(endState.finished ? this.setState({showInput: !this.state.showInput}) : 'bounce cancelled'));
-    }
-  };
-
-  closeControlPanel = () => {
-    this._drawer.close()
-  };
-
-  openControlPanel = () => {
-    this._drawer.open()
-  };
 
   render() {
-    const { showEnsModal } = this.state;
+    const { exchangeRate } = this.state;
     return (
       <View style={{flex: 1}}>
         <Drawer
@@ -154,35 +85,6 @@ export default class WalletMain extends Component<Props> {
           openDrawerOffset={width/2}
         >
           <View style={styles.container}>
-            <View style={{ width: width - 40, flexDirection: 'row', marginTop: 20, alignItems: 'center', justifyContent: 'space-between'}}>
-              <TouchableOpacity onPress={this._pressHandler}>
-                {/*<Image style={{width: 22, height: 22, marginBottom: 3, resizeMode:'contain'}} source={require('../../../public/send_icon.png')} />*/}
-              </TouchableOpacity>
-              <Text style={styles.topNavText}>TENZORUM</Text>
-              <TouchableOpacity style={{zIndex: 99999999999}} onPress={this.openControlPanel}>
-                <EntypoIcon size={35} name="dots-three-vertical" color="white"/>
-              </TouchableOpacity>
-            </View>
-            <View style={{width, flex: 1, flexDirection: 'column', padding: 20}}>
-              <View style={{flexDirection: 'row'}}>
-                <View style={{width: 100, height: 100, alignItems: 'center', justifyContent: 'center'}}>
-                  <FontAwesomeIcon style={styles.loginLogo} name="user-circle" color="white" size={80}/>
-                </View>
-                <View style={{flex: 1, height: 100, backgroundColor: 'transparent', borderRadius: 10, alignItems: 'flex-start', justifyContent: 'center'}}>
-                  <View style={{height: 10, width: width - 280, backgroundColor: '#14aff8', borderRadius: 5}}/>
-                  <View style={{height: 10, width: width - 230, backgroundColor: '#00f877', borderRadius: 5, marginTop: 20}}/>
-                </View>
-              </View>
-              <View style={{ borderBottomColor: '#aaa', borderBottomWidth: 1, marginTop: 10}}/>
-              <TouchableOpacity style={{width, flexDirection: 'row', padding: 10}} onPress={this.showEnsModal}>
-                <Text style={{ fontSize: 20, color: 'white',  }}>@ {this.state.username ? this.state.username : <Text style={{ fontSize: 20, color: '#999999',}}>Set username</Text>}</Text>
-              </TouchableOpacity>
-              <EnsRegistry isVisible={showEnsModal}/>
-            </View>
-            <View style={{width, flex: 1, flexDirection: 'column', padding: 20}}>
-              <Image style={{width: width - 40, marginBottom: 3, resizeMode:'contain'}} source={require('../../public/wot-mock.png')}/>
-              <Image style={{width: width - 40, marginBottom: 3, resizeMode:'contain'}} source={require('../../public/pdevices.png')}/>
-            </View>
           </View>
         </Drawer>
         <Toast
