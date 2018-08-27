@@ -6,7 +6,6 @@ const bip39 = require('bip39');
 
 import {loadAccounts, saveAccount} from "../src/util/db";
 
-
 const privateKey = new Buffer('cf06f0b35515af10b5dfef470e3a1e743470bf9033d06f198b4e829cb2e7ef05', 'hex');
 
 const privateKeyString = 'cf06f0b35515af10b5dfef470e3a1e743470bf9033d06f198b4e829cb2e7ef05';
@@ -14,15 +13,9 @@ const privateKeyString = 'cf06f0b35515af10b5dfef470e3a1e743470bf9033d06f198b4e82
 const web3 = new Web3();
 web3.setProvider(new web3.providers.HttpProvider('https://ropsten.infura.io/rqmgop6P5BDFqz6yfGla'));
 
-const abi = [{"constant":true,"inputs":[],"name":"AVG_PRICE","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_gameId","type":"uint256"},{"name":"_seed","type":"bytes32"}],"name":"reviewResults","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"","type":"uint256"}],"name":"games","outputs":[{"name":"hashedSeed","type":"bytes32"},{"name":"blockNumberToUse","type":"uint256"},{"name":"spinner","type":"address"},{"name":"state","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_gameId","type":"uint256"}],"name":"pickSpinner","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_gameId","type":"uint256"}],"name":"guessTails","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":false,"inputs":[{"name":"_gameId","type":"uint256"},{"name":"_hashedSeed","type":"bytes32"}],"name":"flipKip","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_gameId","type":"uint256"}],"name":"guessHeads","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":false,"inputs":[],"name":"createGame","outputs":[{"name":"_gameId","type":"uint256"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_boxer","type":"address"}],"name":"setBoxer","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_gameId","type":"uint256"}],"name":"newSpinner","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"inputs":[],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":false,"name":"gameId","type":"uint256"},{"indexed":false,"name":"result","type":"uint256"}],"name":"TwoUpResult","type":"event"}]
-
 const contractAddress = '0x624a5458c3ceb82E0ef1830b9a7a25525d07F69e';
 
 const publicAddress = '0x37386A1c592Ad2f1CafFdc929805aF78C71b1CE7';
-
-//TwoUpContract Object
-const TwoUpContract = new web3.eth.Contract(abi, contractAddress);
-
 
 export const createWallet = async () => {
   // const accounts = await loadAccounts();

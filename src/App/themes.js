@@ -38,6 +38,10 @@ const text = {
     fontFamily: 'DIN Condensed',
     color: color.textGrey,
   },
+  heading: {
+    fontSize: 30,
+    fontWeight: 'bold',
+  },
   blackSmall: {
     fontFamily: 'DIN Condensed',
     color: 'black',
@@ -49,6 +53,16 @@ const text = {
   },
 };
 
+
+const shadow = {
+  shadowColor: '#aaa',
+  shadowOffset: {
+    width: 0,
+    height: 0,
+  },
+  shadowRadius: 2,
+  shadowOpacity: 1.0
+}
 // Component Specific
 // ------------------------------
 
@@ -77,6 +91,7 @@ export {
   color,
   fontSize,
   text,
+  shadow,
   navbar,
   nextup,
   listheader,

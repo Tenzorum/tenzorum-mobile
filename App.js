@@ -6,11 +6,10 @@ import ScanPublicKey from './src/App/ScanPublicKey'
 import WebView from './src/App/WebView'
 import { createWallet } from "./utils/ether";
 
-import Landing from './src/App/Landing'
 import WalletMain from "./src/App/WalletMain";
+import UserProfile from "./src/App/UserProfile";
 import General from "./src/App/General";
 import Utilities from "./src/App/Utilities";
-import {saveAccount, loadAccounts} from "./src/util/db";
 
 export const Tabs = TabNavigator({
   General: {screen: General },
@@ -41,6 +40,7 @@ export const Tabs = TabNavigator({
 
 export const Main = StackNavigator({
   WalletMain: { screen: WalletMain },
+  UserProfile: { screen: UserProfile },
   ScanPublicKey: { screen: ScanPublicKey },
   Home: { screen: Tabs },
 }, { headerMode: 'none'});
@@ -61,8 +61,3 @@ export default class App extends Component {
     );
   }
 }
-
-// ghost
-//robot
-//rocket
-//user-secret

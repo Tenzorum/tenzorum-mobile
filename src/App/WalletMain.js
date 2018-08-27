@@ -9,31 +9,36 @@ import {
   Dimensions,
   ScrollView,
   TouchableOpacity,
-  Platform, TouchableWithoutFeedback,
+  Platform,
+  TouchableWithoutFeedback,
 } from 'react-native';
 const Web3 = require('web3');
 import Toast from 'react-native-easy-toast';
 const Contacts = require('react-native-contacts');
 import * as Animatable from 'react-native-animatable';
-// import QRCode from 'react-native-qrcode';
 import Drawer from 'react-native-drawer';
+import Modal from 'react-native-modal';
 
 import {init, checkSubdomainOwner, newSubdomain, loadAccount} from "../../utils/ensFunctions";
 init();
 
 import DrawerView from './DrawerView';
+import QrModal from '../components/QrModal';
+import CameraModal from '../components/CameraModal';
 import TxPopUp from './TxPopUp';
 // import QRCode from './QRCode';
 import EntypoIcon from 'react-native-vector-icons/Entypo'
 import MaterialCommIcon from 'react-native-vector-icons/MaterialCommunityIcons'
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome'
-import Input from './Input'
+import Input from '../components/Input'
+
+import Camera from 'react-native-camera';
 import FeatherIcon from 'react-native-vector-icons/Feather'
 import Button from '../components/Button'
 
 const web3 = new Web3();
 web3.setProvider(new web3.providers.HttpProvider('https://ropsten.infura.io/rqmgop6P5BDFqz6yfGla'));
-import {text} from "./themes";
+import {text, shadow} from "./themes";
 
 let { height, width } = Dimensions.get('window');
 import { navigate } from "../../utils/navigationWrapper";
@@ -64,6 +69,8 @@ export default class WalletMain extends Component<Props> {
 
   state = {
     exchangeRate: 0,
+    cameraModalVisible: false,
+    qrModalVisible: false,
   };
 
 
@@ -71,8 +78,12 @@ export default class WalletMain extends Component<Props> {
 
   }
 
+  _openQrModal = () => {
+    this.setState({qrModalVisible: !this.state.qrModalVisible})
+  };
+
   render() {
-    const { exchangeRate } = this.state;
+    const { exchangeRate, qrModalVisible, cameraModalVisible } = this.state;
     return (
       <View style={{flex: 1}}>
         <Drawer
@@ -85,6 +96,34 @@ export default class WalletMain extends Component<Props> {
           openDrawerOffset={width/2}
         >
           <View style={styles.container}>
+            <View style={styles.header}>
+              <Text style={text.heading}>Wallet</Text>
+              <TouchableOpacity onPress={this._openQrModal}>
+                <MaterialCommIcon name="qrcode-scan" size={20}/>
+              </TouchableOpacity>
+            </View>
+            <ScrollView style={{marginRight: -20, marginLeft: -20, height: 100, padding: 10}} horizontal>
+              <View style={styles.cryptoBox}/>
+              <View style={styles.cryptoBox}/>
+              <View style={styles.cryptoBox}/>
+              <View style={styles.cryptoBox}/>
+            </ScrollView>
+            <View style={styles.transactionBox}>
+              <View>
+                <Input/>
+                <TouchableOpacity>
+                  
+                </TouchableOpacity>
+              </View>
+
+            </View>
+            <TouchableOpacity onPress={() => this.setState({cameraModalVisible: !cameraModalVisible})}>
+              <Text>
+                Open
+              </Text>
+            </TouchableOpacity>
+            <CameraModal visible={cameraModalVisible}/>
+            <QrModal value={'0x234423213423423413244231'} visible={qrModalVisible}/>
           </View>
         </Drawer>
         <Toast
@@ -107,82 +146,28 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    paddingBottom: 30,
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#eee',
+    backgroundColor: '#d3e4ee',
   },
-  drawer: {
-    backgroundColor: 'black',
-    shadowColor: '#000000',
-    shadowOpacity: 0.8,
-    shadowRadius: 3,
-    zIndex: -9999,
+  cryptoBox: {
+    width: 80,
+    height: 120,
+    borderRadius: 15,
+    backgroundColor: 'white',
+    marginLeft: 10,
+    ...shadow
   },
-  balanceButton: {
-    backgroundColor: '#0dab7f',
-    padding: 10,
-    width: 200,
-    margin: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 5
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    marginTop: 20,
-  },
-  topNavText: {
-    fontFamily: 'DIN Condensed',
-    color: 'grey',
-    fontSize: 16,
-  },
-  bottomNavTextLarge: {
-    fontFamily: 'DIN Condensed',
-    color: 'white',
-    fontSize: 40,
-    marginBottom: -10
-  },
-  bottomNavTextSmall: {
-    fontFamily: 'DIN Condensed',
-    color: 'grey',
-    fontSize: 13,
-    marginBottom: -5
-  },
-  balanceText: {
-    textAlign: 'center',
-    color: 'white',
-    fontSize: 16
-  },
-  bottomNav: {
-    flexDirection: 'column'
-  },
-  linesAndLogo: {
+  transactionBox: {
     width: width - 40,
+    height: 200,
+    padding: 10,
+    borderRadius: 15,
+    backgroundColor: 'white',
+    ...shadow
+  },
+  header: {
+    height: 100,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-around',
-  },
-  button: {
-    backgroundColor: "lightblue",
-    padding: 12,
-    margin: 16,
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: 4,
-    borderColor: "rgba(0, 0, 0, 0.1)"
-  },
-  modalContent: {
-    backgroundColor: "transparent",
-    padding: 22,
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: 6,
-    borderWidth: 2,
-    borderColor: "yellow"
-  },
-  bottomModal: {
-    justifyContent: "flex-end",
-    margin: 0
+    justifyContent: 'space-between',
   }
 });
