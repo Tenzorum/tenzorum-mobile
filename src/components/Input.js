@@ -56,12 +56,12 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 40,
     borderRadius: 10,
-    backgroundColor: '#aaa',
+    backgroundColor: '#ccc',
   },
   input: {
     flex: 1,
     backgroundColor: 'transparent',
-    borderColor: '#aaa',
+    borderColor: '#ccc',
     borderWidth: 1,
     borderRadius: 10,
     paddingLeft: 4,
@@ -73,24 +73,6 @@ const styles = StyleSheet.create({
       width: 0,
       height: 0
     },
-  },
-  inputContdainer: {
-    flexDirection: 'row',
-    backgroundColor: 'white',
-    borderRadius: 10,
-    width: '100%',
-    height: 50,
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    padding: 10,
-    shadowColor: '#aaa',
-    shadowOffset: {
-      width: 0,
-      height: 3
-    },
-    shadowRadius: 2,
-    shadowOpacity: 1.0
-
   },
   inputStyle: {
     marginLeft: 10,

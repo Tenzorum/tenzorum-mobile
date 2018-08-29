@@ -37,7 +37,7 @@ import {text} from "./themes";
 
 let { height, width } = Dimensions.get('window');
 import { navigate } from "../../utils/navigationWrapper";
-import { ethSign } from "../util/native";
+import { ethSign, words } from "../util/native";
 import { getPrivateKey, getPublicKey, loadAccounts } from "../util/db";
 import EnsRegistry from "../components/EnsRegistry";
 
@@ -76,7 +76,6 @@ export default class UserProfile extends Component<Props> {
     showEnsModal: false
   };
 
-
   componentDidMount() {
     Contacts.getAll((err, contacts) => {
       if (err) throw err;
@@ -84,7 +83,6 @@ export default class UserProfile extends Component<Props> {
       // contacts returned
       console.log('LE CONTACTS', contacts)
     });
-    this._getAccounts;
 
     fetch('https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD')
       .then((response) => response.json())
@@ -117,18 +115,11 @@ export default class UserProfile extends Component<Props> {
 
   showEnsModal  = () => this.setState({ showEnsModal: true });
 
-  bounce = () => {
-    const {ensDomain} = this.state;
-    if (ensDomain.length !== 0) {
-      newSubdomain(ensDomain, 'tenz-id.eth', '0x37386A1c592Ad2f1CafFdc929805aF78C71b1CE7', '0x37386A1c592Ad2f1CafFdc929805aF78C71b1CE7');
-      this.setState({username: ensDomain})
-    }
+  _getENS = (ensName) => {
+    if (ensName.length !== 0) {
+      // newSubdomain(ensName, 'tenz-id.eth', '0x37386A1c592Ad2f1CafFdc929805aF78C71b1CE7', '0x37386A1c592Ad2f1CafFdc929805aF78C71b1CE7');
+      this.setState({username: ensName, showEnsModal: !this.state.showEnsModal});
 
-    if (this.state.showInput === false) {
-      this.setState({showInput: !this.state.showInput});
-      this.view.bounceInDown(1000).then(endState => console.log(endState.finished ? 'bounce finished' : 'bounce cancelled'));
-    } else {
-      this.view.bounceOutDown(1000).then(endState => console.log(endState.finished ? this.setState({showInput: !this.state.showInput}) : 'bounce cancelled'));
     }
   };
 
@@ -177,7 +168,7 @@ export default class UserProfile extends Component<Props> {
               <TouchableOpacity style={{width, flexDirection: 'row', padding: 10}} onPress={this.showEnsModal}>
                 <Text style={{ fontSize: 20, color: 'white',  }}>@ {this.state.username ? this.state.username : <Text style={{ fontSize: 20, color: '#999999',}}>Set username</Text>}</Text>
               </TouchableOpacity>
-              <EnsRegistry isVisible={showEnsModal}/>
+              <EnsRegistry onRegister={this._getENS} isVisible={showEnsModal}/>
             </View>
             <View style={{width, flex: 1, flexDirection: 'column', padding: 20}}>
               <Image style={{width: width - 40, marginBottom: 3, resizeMode:'contain'}} source={require('../../public/wot-mock.png')}/>

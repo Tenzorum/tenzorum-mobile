@@ -20,12 +20,12 @@ const publicAddress = '0x37386A1c592Ad2f1CafFdc929805aF78C71b1CE7';
 export const createWallet = async () => {
   // const accounts = await loadAccounts();
   // if (accounts.length === 0) {
-    console.log('Account Saved ✅')
+    console.log('Account Saved ✅');
     const newWallet = Wallet.generate();
     const privKey = newWallet.getPrivateKeyString();
     const { address } = web3.eth.accounts.privateKeyToAccount(privKey);
-    console.log('PRIVKEY: ', privKey);
-    console.log('PUBKEY: ', address);
+    console.log('PRIVKEY: ', privKey.substring(2));
+    console.log('PUBKEY: ', address.substring(2));
     const account = {
       "privKey": privKey.substring(2),
       "address": address.substring(2)

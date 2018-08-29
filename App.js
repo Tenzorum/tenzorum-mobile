@@ -9,12 +9,13 @@ import { createWallet } from "./utils/ether";
 import WalletMain from "./src/App/WalletMain";
 import UserProfile from "./src/App/UserProfile";
 import General from "./src/App/General";
-import Utilities from "./src/App/Utilities";
+
+//TODO: remove all public addresses and keys to use saved addresses and keys
 
 export const Tabs = TabNavigator({
-  General: {screen: General },
-  Home: {screen: WalletMain },
-  Weigh: { screen: Utilities },
+  Home: {screen: UserProfile },
+  WalletMain: {screen: WalletMain },
+  General: {screen: General}
 }, {
   tabBarPosition: 'bottom',
   animationEnabled: true,
@@ -39,10 +40,10 @@ export const Tabs = TabNavigator({
   }});
 
 export const Main = StackNavigator({
+  Home: { screen: Tabs },
   WalletMain: { screen: WalletMain },
   UserProfile: { screen: UserProfile },
   ScanPublicKey: { screen: ScanPublicKey },
-  Home: { screen: Tabs },
 }, { headerMode: 'none'});
 
 export default class App extends Component {

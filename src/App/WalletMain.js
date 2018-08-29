@@ -78,7 +78,7 @@ export default class WalletMain extends Component<Props> {
 
   }
 
-  _openQrModal = () => {
+  _toggleQrModal = () => {
     this.setState({qrModalVisible: !this.state.qrModalVisible})
   };
 
@@ -98,32 +98,33 @@ export default class WalletMain extends Component<Props> {
           <View style={styles.container}>
             <View style={styles.header}>
               <Text style={text.heading}>Wallet</Text>
-              <TouchableOpacity onPress={this._openQrModal}>
+              <TouchableOpacity onPress={this._toggleQrModal}>
                 <MaterialCommIcon name="qrcode-scan" size={20}/>
               </TouchableOpacity>
             </View>
-            <ScrollView style={{marginRight: -20, marginLeft: -20, height: 100, padding: 10}} horizontal>
-              <View style={styles.cryptoBox}/>
-              <View style={styles.cryptoBox}/>
-              <View style={styles.cryptoBox}/>
-              <View style={styles.cryptoBox}/>
-            </ScrollView>
+            {/*<ScrollView style={{marginRight: -20, marginLeft: -20, height: 100, padding: 10, flex: 0}} horizontal showsHorizontalScrollIndicator={false}>*/}
+              {/*<View style={styles.cryptoBox}/>*/}
+              {/*<View style={styles.cryptoBox}/>*/}
+              {/*<View style={styles.cryptoBox}/>*/}
+              {/*<View style={styles.cryptoBox}/>*/}
+              {/*<View style={styles.cryptoBox}/>*/}
+            {/*</ScrollView>*/}
             <View style={styles.transactionBox}>
-              <View>
-                <Input/>
-                <TouchableOpacity>
-                  
+              <View style={styles.inputAndButton}>
+                <Input placeholder="Send to..."/>
+                <TouchableOpacity onPress={() => this.setState({cameraModalVisible: !cameraModalVisible})} style={styles.squareButton}>
+                  <MaterialCommIcon name="camera" color="rgba(0,0,0,0.5)" size={20}/>
                 </TouchableOpacity>
               </View>
-
+              <View style={[styles.inputAndButton, {width: 170}]}>
+                <Input placeholder="Amount"/>
+                <TouchableOpacity style={styles.sendButton}>
+                  <Text style={text.lightMedium}>Send</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-            <TouchableOpacity onPress={() => this.setState({cameraModalVisible: !cameraModalVisible})}>
-              <Text>
-                Open
-              </Text>
-            </TouchableOpacity>
-            <CameraModal visible={cameraModalVisible}/>
-            <QrModal value={'0x234423213423423413244231'} visible={qrModalVisible}/>
+            <CameraModal isVisible={cameraModalVisible} modalControl={() => this.setState({cameraModalVisible: !cameraModalVisible})}/>
+            <QrModal value={'0x234423213423423413244231'} isVisible={qrModalVisible} modalControl={() => this.setState({qrModalVisible: !qrModalVisible})}/>
           </View>
         </Drawer>
         <Toast
@@ -156,6 +157,35 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     ...shadow
   },
+  header: {
+    height: 100,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  inputAndButton: {
+    flex:1,
+    flexDirection: 'row',
+    width: 210,
+  },
+  sendButton: {
+    marginLeft: 10,
+    borderRadius: 10,
+    height: 40,
+    width: 80,
+    backgroundColor: '#a25cee',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  squareButton: {
+    marginLeft: 10,
+    borderRadius: 10,
+    height: 40,
+    width: 40,
+    backgroundColor: '#3f69ee',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   transactionBox: {
     width: width - 40,
     height: 200,
@@ -164,10 +194,4 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     ...shadow
   },
-  header: {
-    height: 100,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  }
 });

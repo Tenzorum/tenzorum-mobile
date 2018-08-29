@@ -30,25 +30,24 @@ const fontSize = {
 // text styles
 const text = {
   greySmall: {
-    fontFamily: 'DIN Condensed',
     color: color.textGrey,
     fontSize: 10,
   },
   greyMedium: {
-    fontFamily: 'DIN Condensed',
     color: color.textGrey,
   },
   heading: {
     fontSize: 30,
     fontWeight: 'bold',
   },
+  lightMedium: {
+    color: color.lightGrey
+  },
   blackSmall: {
-    fontFamily: 'DIN Condensed',
     color: 'black',
     fontSize: 10,
   },
   blackMedium: {
-    fontFamily: 'DIN Condensed',
     color: 'black',
   },
 };

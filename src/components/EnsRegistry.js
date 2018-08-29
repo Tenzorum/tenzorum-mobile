@@ -40,30 +40,21 @@ export default class EnsRegistry extends Component<Props> {
     console.log('ACCOUNTS: ', accounts)
   }
 
-  componentDidUpdate() {
-    // this._checkENS();
-  }
-
-
-
   _checkENS = async (ensUsername) => {
     if (ensUsername.length === 0) {
       this.setState({ensAvailable: false, ensMessage: 'Enter a valid or unempty username'});
       return;
     }
-    console.log('the letter to check', ensUsername)
+
+    this.setState({ensDomain: ensUsername});
     const {ensDomain} = this.state;
     const addr = await checkSubdomainOwner(ensUsername, 'tenz-id');
-    console.log('DOMAIN check result: ', addr);
-    this.setState({ensDomain: ensUsername});
 
     if (addr === emptyAddress) {
-      console.log("It's available! Go for it tiger!");
       this.setState({ensAvailable: true, ensMessage: 'ENS username available'});
     } else if(addr === currentAccount) {
       this.setState({ensAvailable: true, ensMessage: "It's your domain! Edit away!"});
     } else {
-      console.log("Oops! It's already taken by: " + addr);
       this.setState({ensAvailable: false, ensMessage: "Oops! It's already taken by: " + addr});
     }
 
@@ -71,7 +62,8 @@ export default class EnsRegistry extends Component<Props> {
 
   _setENS = () => {
     const {ensDomain} = this.state;
-    newSubdomain(ensDomain, 'tenz-id.eth', '0x37386A1c592Ad2f1CafFdc929805aF78C71b1CE7', '0x37386A1c592Ad2f1CafFdc929805aF78C71b1CE7');
+    newSubdomain(ensDomain, 'tenz-id', '0x37386A1c592Ad2f1CafFdc929805aF78C71b1CE7', '0x37386A1c592Ad2f1CafFdc929805aF78C71b1CE7');
+    this.props.onRegister(ensDomain);
   };
 
   render() {
@@ -81,7 +73,7 @@ export default class EnsRegistry extends Component<Props> {
       <Modal isVisible={isVisible}>
         <View style={styles.mainContainer}>
           <Input onChangeText={this._checkENS} value={this.state.ensDomain} autoCapitalize="none"/>
-          <Text style={{marginTop: 10, height: 25, color: ensAvailable ? 'green' : 'red'}}>
+          <Text style={{marginTop: 10, height: 25, color: ensAvailable ? 'green' : 'red'}} numberOfLines={1}>
             {ensMessage}
           </Text>
           <Button onPress={this._setENS} disabled={!ensAvailable}><Text style={{color: 'white', fontWeight: '900', fontSize: 15}}>Get</Text></Button>

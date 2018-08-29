@@ -16,7 +16,7 @@
 
 'use strict'
 
-import { EthkeyBridge } from 'NativeModules'
+import { EthKey } from 'NativeModules'
 import { checksummedAddress } from './checksum'
 
 const asString = (x) => x.split('').map(x => x.charCodeAt(0).toString(16)).join('')

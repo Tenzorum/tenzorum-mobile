@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
       shadowRadius: 1,
       shadowOpacity: 0.5,
       shadowOffset: {
-        width: 1,
+        width: 0,
         height: 0
       },
       backgroundColor: '#317aee',
