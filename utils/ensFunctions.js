@@ -1,6 +1,7 @@
 const Web3 = require('web3');
 const web3 = new Web3();
 web3.setProvider(new web3.providers.HttpProvider('https://ropsten.infura.io/rqmgop6P5BDFqz6yfGla'));
+// const sha3 = require('sha3');
 
 let factoryContract = null;
 const factoryAbi = [{"constant":false,"inputs":[{"name":"_topLevelDomain","type":"string"},{"name":"_subDomain","type":"string"},{"name":"_owner","type":"address"},{"name":"_target","type":"address"}],"name":"newSubdomain","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"anonymous":false,"inputs":[{"indexed":true,"name":"creator","type":"address"},{"indexed":true,"name":"owner","type":"address"},{"indexed":false,"name":"domain","type":"string"},{"indexed":false,"name":"subdomain","type":"string"}],"name":"SubdomainCreated","type":"event"},{"constant":true,"inputs":[{"name":"_subDomain","type":"string"},{"name":"_topLevelDomain","type":"string"}],"name":"subDomainOwner","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"}]
@@ -16,6 +17,35 @@ const factoryAddress = "0xf9fa2ff44a474b6d20500969bda61c2827fbc6b6";
 
 factoryContract = new web3.eth.Contract(factoryAbi, factoryAddress);
 let currentAccount;
+
+var isChecksumAddress = function (address) {
+  // Check each case
+  address = address.replace('0x','');
+  var addressHash = sha3(address.toLowerCase());
+  for (var i = 0; i < 40; i++ ) {
+    console.log('sha checking')
+    // the nth letter should be uppercase if the nth digit of casemap is 1
+    if ((parseInt(addressHash[i], 16) > 7 && address[i].toUpperCase() !== address[i]) || (parseInt(addressHash[i], 16) <= 7 && address[i].toLowerCase() !== address[i])) {
+      return false;
+    }
+  }
+  return true;
+};
+
+export const addressResolver = async (input) => {
+  if (input.substring(0,2) === "0x"){
+    if (!/^(0x)?[0-9a-f]{40}$/i.test(input)) {
+      console.log("Invalid address");
+      return "0x0000000000000000000000000000000000000000";
+    } else if (/^(0x)?[0-9a-f]{40}$/.test(input) || /^(0x)?[0-9A-F]{40}$/.test(input)) {
+      console.log("Valid address");
+      return input;
+    }
+  } else {
+    return await checkSubdomainOwner(input, 'tenz-id');
+  }
+}
+
 
 export const initWeb3 = () => {
   if(typeof web3 !== 'undefined') {
@@ -45,10 +75,14 @@ export const loadAccount = () => {
 };
 
 export const checkSubdomainOwner = async (subdomain, domain) => {
-  try {
-    return await factoryContract.methods.subDomainOwner(subdomain, domain).call();
-  } catch(e) {
-    return "Error connecting to subdomain provider";
+  if (subdomain && domain) {
+    try {
+      return await factoryContract.methods.subDomainOwner(subdomain, domain).call();
+    } catch(e) {
+      return "Error connecting to subdomain provider";
+    }
+  } else {
+    return "Enter both subdomain and domain"
   }
 };
 
@@ -70,36 +104,36 @@ export const newSubdomain = (subdomain, domain, owner, target) => {
 };
 
 export const setSubdomain = async () => {
-    const data = await factoryContract.methods.newSubdomain(subdomain, domain, owner, target).encodeABI();
-    const nonce = await web3.eth.getTransactionCount(account1.publicKey);
-    const chainId = await web3.eth.net.getId();
+  const data = await factoryContract.methods.newSubdomain(subdomain, domain, owner, target).encodeABI();
+  const nonce = await web3.eth.getTransactionCount(account1.publicKey);
+  const chainId = await web3.eth.net.getId();
 
-    const rawTx = {
-      "nonce": nonce,
-      "from": account1.publicKey,
-      "to": "0xdb0a1cf7ec068fd48a3f5869bf4f60b62e4ecb5e",
-      "value": "0x0",
-      "gas": 40000,
-      "gasPrice": 500000000000, // converts the gwei price to wei
-      "chainId": 3,
-      "data": web3.utils.toHex(data)
-    };
+  const rawTx = {
+    "nonce": nonce,
+    "from": account1.publicKey,
+    "to": "0xdb0a1cf7ec068fd48a3f5869bf4f60b62e4ecb5e",
+    "value": "0x0",
+    "gas": 40000,
+    "gasPrice": 500000000000, // converts the gwei price to wei
+    "chainId": 3,
+    "data": web3.utils.toHex(data)
+  };
 
-    const tx = new Tx(rawTx);
-    tx.sign(account1.privateKey);
+  const tx = new Tx(rawTx);
+  tx.sign(account1.privateKey);
 
-    const serializedTx = tx.serialize();
+  const serializedTx = tx.serialize();
 
-    web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'))
-      .on('transactionHash', (txHash) => {
-        console.log('Tokens transferred:' , txHash);
-      })
-      .on('confirmation', (conf, msg) => {
-        //after account gets money
-        if (conf === 0) {
-          console.log('& Confirmed:' , conf);
-        }
-      })
+  web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'))
+    .on('transactionHash', (txHash) => {
+      console.log('Tokens transferred:' , txHash);
+    })
+    .on('confirmation', (conf, msg) => {
+      //after account gets money
+      if (conf === 0) {
+        console.log('& Confirmed:' , conf);
+      }
+    })
 }
 
 export const initActions = () => {

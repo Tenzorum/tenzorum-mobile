@@ -21,6 +21,7 @@ import {checkSubdomainOwner, newSubdomain} from "../../utils/ensFunctions";
 import {loadAccounts} from "../util/db";
 const emptyAddress = '0x0000000000000000000000000000000000000000';
 const currentAccount = "0x37386A1c592Ad2f1CafFdc929805aF78C71b1CE7";
+import FeatherIcon from 'react-native-vector-icons/Feather'
 
 let {height, width} = Dimensions.get('window');
 
@@ -32,12 +33,13 @@ export default class EnsRegistry extends Component<Props> {
       ensDomain: '',
       ensAvailable: false,
       publicAddress: '',
+      ensMessage: ''
     }
   }
 
   componentDidMount() {
-    const accounts = loadAccounts();
-    console.log('ACCOUNTS: ', accounts)
+    // const accounts = loadAccounts();
+    // console.log('ACCOUNTS: ', accounts)
   }
 
   _checkENS = async (ensUsername) => {
@@ -71,6 +73,11 @@ export default class EnsRegistry extends Component<Props> {
     const { isVisible } = this.props;
     return (
       <Modal isVisible={isVisible}>
+        <View style={styles.closeButtonContainer}>
+          <TouchableOpacity style={styles.button} onPress={this.props.toggleFunction}>
+            <FeatherIcon name="x" size={25} color="white"/>
+          </TouchableOpacity>
+        </View>
         <View style={styles.mainContainer}>
           <Input onChangeText={this._checkENS} value={this.state.ensDomain} autoCapitalize="none"/>
           <Text style={{marginTop: 10, height: 25, color: ensAvailable ? 'green' : 'red'}} numberOfLines={1}>
@@ -92,7 +99,20 @@ const styles = StyleSheet.create({
     padding: 20,
     width: width - 40,
   },
+  closeButtonContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'flex-end',
+    width: width-50,
+    height: 60,
+  },
   button: {
-
+    height: 40,
+    width: 40,
+    borderRadius: 10,
+    marginBottom: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)'
   }
 });

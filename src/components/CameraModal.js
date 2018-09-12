@@ -65,7 +65,7 @@ export default class QrModal extends Component {
       .sign(msg);
 
     console.log('PHONE ID: ', this.state.phoneUid);
-    fetch(`https://backend-odczrtlcqz.now.sh/login/${socketId}/${this.state.phoneUid}/${msg}/${account.signature}`)
+    fetch(`https://login.tenzorum.app/login/${socketId}/${this.state.phoneUid}/${msg}/${account.signature}`)
       .then((res) => {
         console.log('RES: ', res)
       })

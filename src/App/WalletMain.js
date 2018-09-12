@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Text,
   View,
+  Keyboard,
   Image,
   Dimensions,
   ScrollView,
@@ -18,9 +19,10 @@ const Contacts = require('react-native-contacts');
 import * as Animatable from 'react-native-animatable';
 import Drawer from 'react-native-drawer';
 import Modal from 'react-native-modal';
-
-import {init, checkSubdomainOwner, newSubdomain, loadAccount} from "../../utils/ensFunctions";
-init();
+import ActionButton from 'react-native-circular-action-menu';
+import Icon from 'react-native-vector-icons/Ionicons';
+import {transferEtherNoReward, transferTokensNoReward} from 'tenzorum'
+import {checkSubdomainOwner, newSubdomain, loadAccount, addressResolver} from "../../utils/ensFunctions";
 
 import DrawerView from './DrawerView';
 import QrModal from '../components/QrModal';
@@ -42,9 +44,17 @@ import {text, shadow} from "./themes";
 
 let { height, width } = Dimensions.get('window');
 import { navigate } from "../../utils/navigationWrapper";
-import { ethSign } from "../util/native";
+import {ethSign, keccak} from "../util/native";
 import { getPrivateKey, getPublicKey, loadAccounts } from "../util/db";
 import EnsRegistry from "../components/EnsRegistry";
+// const dat = ethSign("hello");
+// console.log("LE KECCAK: ", dat);
+const emptyAddress = '0x0000000000000000000000000000000000000000';
+const currentAccount = "0x37386A1c592Ad2f1CafFdc929805aF78C71b1CE7";
+
+// a19e5d901ff3c459899800b2f088220ff69c4e465e85e1e1fb84bc64d2921a01
+// 0xF938BfDC53F72cB7a4B1946969bA0ccE05C902c6
+
 
 
 type Props = {};
@@ -71,6 +81,10 @@ export default class WalletMain extends Component<Props> {
     exchangeRate: 0,
     cameraModalVisible: false,
     qrModalVisible: false,
+    ensDomain: '',
+    ensAvailable: false,
+    publicAddress: '',
+    ensMessage: ''
   };
 
 
@@ -78,14 +92,51 @@ export default class WalletMain extends Component<Props> {
 
   }
 
+  _sendEth = async () => {
+    const payload = await transferTokensNoReward('0xDb0A1cf7EC068fd48A3f5869Bf4f60B62e4ECB5E', 10000000000, '0xa1b02d8c67b0fdcf4e379855868deb470e169cfb');
+    // const payload = await transferEtherNoReward(1, '0x37386A1c592Ad2f1CafFdc929805aF78C71b1CE7');
+    console.log('PAYLOAD: ', payload);
+    const res = await fetch('https://tenz-tsn-js-ltvphcqvfo.now.sh/execute/0xf74694642a81a226771981cd38df9105a133c111', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+    console.log('RESPONSE: ', res)
+    return res
+  };
+
+  _resolveAddress = async (ensUsername) => {
+    if (ensUsername.length === 0) {
+      this.setState({ensAvailable: false, ensMessage: 'Enter a valid or unempty username'});
+      return;
+    }
+
+    this.setState({ensDomain: ensUsername});
+    const {ensDomain} = this.state;
+    const addr = await addressResolver(ensUsername);
+
+    if (addr === emptyAddress) {
+      this.setState({ensAvailable: false, ensMessage: 'Invalid address'});
+    } else if(addr === currentAccount) {
+      this.setState({ensAvailable: true, ensMessage: "It's your domain!"});
+    } else {
+      this.setState({ensAvailable: true, ensMessage: "Valid address"});
+    }
+
+  };
+
   _toggleQrModal = () => {
     this.setState({qrModalVisible: !this.state.qrModalVisible})
   };
 
   render() {
-    const { exchangeRate, qrModalVisible, cameraModalVisible } = this.state;
+    const { exchangeRate, qrModalVisible, cameraModalVisible, ensMessage, ensAvailable } = this.state;
     return (
-      <View style={{flex: 1}}>
+      <TouchableWithoutFeedback>
+        <View onPress={Keyboard.dismiss} style={{flex: 1}}>
         <Drawer
           ref={(ref) => this._drawer = ref}
           type="overlay"
@@ -111,17 +162,34 @@ export default class WalletMain extends Component<Props> {
             {/*</ScrollView>*/}
             <View style={styles.transactionBox}>
               <View style={styles.inputAndButton}>
-                <Input placeholder="Send to..."/>
+                <Input placeholder="Send to..." onChangeText={this._resolveAddress} autoCapitalize="none"/>
                 <TouchableOpacity onPress={() => this.setState({cameraModalVisible: !cameraModalVisible})} style={styles.squareButton}>
                   <MaterialCommIcon name="camera" color="rgba(0,0,0,0.5)" size={20}/>
                 </TouchableOpacity>
               </View>
+              <Text style={{marginTop: 10, height: 25, color: ensAvailable ? 'green' : 'red'}} numberOfLines={1}>
+                {ensMessage}
+              </Text>
               <View style={[styles.inputAndButton, {width: 170}]}>
-                <Input placeholder="Amount"/>
-                <TouchableOpacity style={styles.sendButton}>
+                <Input placeholder="Amount" keyboardType={"numeric"}/>
+                <TouchableOpacity style={styles.sendButton} onPress={this._sendEth}>
                   <Text style={text.lightMedium}>Send</Text>
                 </TouchableOpacity>
               </View>
+            </View>
+            <View style={{flex:1, backgroundColor: '#f3f3f3', alignItems: 'flex-end'}}>
+              {/*Rest of App come ABOVE the action button component!*/}
+              <ActionButton position="right" radius={80} buttonColor="rgba(231,76,60,1)">
+                <ActionButton.Item buttonColor='#9b59b6' title="New Task" onPress={() => console.log("notes tapped!")}>
+                  <Icon name="ios-send" style={styles.actionButtonIcon} />
+                </ActionButton.Item>
+                <ActionButton.Item buttonColor='#3498db' title="Notifications" onPress={() => {}}>
+                  <Icon name="ios-basketball" style={styles.actionButtonIcon} />
+                </ActionButton.Item>
+                <ActionButton.Item buttonColor='#1abc9c' title="All Tasks" onPress={() => {}}>
+                  <Icon name="ios-browsers" style={styles.actionButtonIcon} />
+                </ActionButton.Item>
+              </ActionButton>
             </View>
             <CameraModal isVisible={cameraModalVisible} modalControl={() => this.setState({cameraModalVisible: !cameraModalVisible})}/>
             <QrModal value={'0x234423213423423413244231'} isVisible={qrModalVisible} modalControl={() => this.setState({qrModalVisible: !qrModalVisible})}/>
@@ -138,12 +206,18 @@ export default class WalletMain extends Component<Props> {
           textStyle={{color:'white'}}
         />
       </View>
+      </TouchableWithoutFeedback>
     )
   }
 }
 
 
 const styles = StyleSheet.create({
+  actionButtonIcon: {
+    fontSize: 20,
+    height: 22,
+    color: 'white',
+  },
   container: {
     flex: 1,
     padding: 20,

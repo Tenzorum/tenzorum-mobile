@@ -15,7 +15,6 @@ import {
   Image,
   View,
 } from 'react-native';
-import axios from 'axios';
 import OneSignal from 'react-native-onesignal';
 import EntypoIcon from 'react-native-vector-icons/Entypo'
 import MaterialCommIcon from 'react-native-vector-icons/MaterialCommunityIcons'
@@ -162,7 +161,7 @@ export default class ScanPublicKey extends Component {
 
       const serializedTx = tx.serialize();
 
-      fetch(`https://backend-odczrtlcqz.now.sh/subscribe/${this.state.socketId}`)
+      fetch(`https://login.tenzorum.app/subscribe/${this.state.socketId}`)
         .then((res) => {
           console.log('RES: ', res)
         })
@@ -199,7 +198,7 @@ export default class ScanPublicKey extends Component {
       .sign(msg);
 
     console.log('PHONE ID: ', this.state.phoneUid);
-    fetch(`https://backend-odczrtlcqz.now.sh/login/${socketId}/${this.state.phoneUid}/${msg}/${account.signature}`)
+    fetch(`https://login.tenzorum.app/login/${socketId}/${this.state.phoneUid}/${msg}/${account.signature}`)
       .then((res) => {
         console.log('RES: ', res)
       })

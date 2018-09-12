@@ -18,8 +18,8 @@ import * as Animatable from 'react-native-animatable';
 // import QRCode from 'react-native-qrcode';
 import Drawer from 'react-native-drawer';
 
-import {init, checkSubdomainOwner, newSubdomain, loadAccount} from "../../utils/ensFunctions";
-init();
+import {checkSubdomainOwner, newSubdomain, loadAccount} from "../../utils/ensFunctions";
+
 
 import DrawerView from './DrawerView';
 import TxPopUp from './TxPopUp';
@@ -40,6 +40,8 @@ import { navigate } from "../../utils/navigationWrapper";
 import { ethSign, words } from "../util/native";
 import { getPrivateKey, getPublicKey, loadAccounts } from "../util/db";
 import EnsRegistry from "../components/EnsRegistry";
+import ActionButton from "react-native-circular-action-menu";
+import Icon from "react-native-vector-icons/Ionicons";
 
 
 type Props = {};
@@ -48,6 +50,7 @@ export default class UserProfile extends Component<Props> {
     const { navigate } = navigation;
     return {
       tabBarIcon: ({tintColor}) => <FeatherIcon size={35} name="circle" color="#1D2533"/>,
+      tabBarVisible: false,
       headerStyle:
         {
           position: 'absolute',
@@ -103,17 +106,17 @@ export default class UserProfile extends Component<Props> {
     });
   }
 
-  _getAccounts = async () => {
-    const accounts = await loadAccounts();
-    const account1 = accounts.length;
-    console.log("address");
-    console.log(account1);
-  }
+  // _getAccounts = async () => {
+  //   const accounts = await loadAccounts();
+  //   const account1 = accounts.length;
+  //   console.log("address");
+  //   console.log(account1);
+  // }
 
 
   handleViewRef = ref => this.view = ref;
 
-  showEnsModal  = () => this.setState({ showEnsModal: true });
+  showEnsModal  = () => this.setState({ showEnsModal: !this.state.showEnsModal });
 
   _getENS = (ensName) => {
     if (ensName.length !== 0) {
@@ -146,35 +149,60 @@ export default class UserProfile extends Component<Props> {
         >
           <View style={styles.container}>
             <View style={{ width: width - 40, flexDirection: 'row', marginTop: 20, alignItems: 'center', justifyContent: 'space-between'}}>
-              <TouchableOpacity onPress={this._pressHandler}>
-                {/*<Image style={{width: 22, height: 22, marginBottom: 3, resizeMode:'contain'}} source={require('../../../public/send_icon.png')} />*/}
+              <TouchableOpacity onPress={() => navigate('WalletMain')}>
+                {/*<View style={styles.loginButton}>*/}
+                <FontAwesomeIcon style={styles.loginLogo} name="user-circle" color="white" size={35}/>
+                {/*</View>*/}
               </TouchableOpacity>
-              <Text style={styles.topNavText}>TENZORUM</Text>
-              <TouchableOpacity style={{zIndex: 99999999999}} onPress={this.openControlPanel}>
-                <EntypoIcon size={35} name="dots-three-vertical" color="white"/>
-              </TouchableOpacity>
-            </View>
-            <View style={{width, flex: 1, flexDirection: 'column', padding: 20}}>
-              <View style={{flexDirection: 'row'}}>
-                <View style={{width: 100, height: 100, alignItems: 'center', justifyContent: 'center'}}>
-                  <FontAwesomeIcon style={styles.loginLogo} name="user-circle" color="white" size={80}/>
-                </View>
-                <View style={{flex: 1, height: 100, backgroundColor: 'transparent', borderRadius: 10, alignItems: 'flex-start', justifyContent: 'center'}}>
-                  <View style={{height: 10, width: width - 280, backgroundColor: '#14aff8', borderRadius: 5}}/>
-                  <View style={{height: 10, width: width - 230, backgroundColor: '#00f877', borderRadius: 5, marginTop: 20}}/>
-                </View>
-              </View>
-              <View style={{ borderBottomColor: '#aaa', borderBottomWidth: 1, marginTop: 10}}/>
               <TouchableOpacity style={{width, flexDirection: 'row', padding: 10}} onPress={this.showEnsModal}>
                 <Text style={{ fontSize: 20, color: 'white',  }}>@ {this.state.username ? this.state.username : <Text style={{ fontSize: 20, color: '#999999',}}>Set username</Text>}</Text>
               </TouchableOpacity>
-              <EnsRegistry onRegister={this._getENS} isVisible={showEnsModal}/>
+              <TouchableOpacity style={{zIndex: 99999999999}} onPress={this.openControlPanel}>
+                <EntypoIcon size={35} name="dots-three-vertical" color="#1D2533"/>
+              </TouchableOpacity>
             </View>
-            <View style={{width, flex: 1, flexDirection: 'column', padding: 20}}>
+            <ScrollView style={{width: width - 20, flex: 1, flexDirection: 'column' }}>
+              <View style={styles.messagesContainer}>
+                <View style={styles.messageDescription}>
+                  <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+                    <FontAwesomeIcon style={styles.loginLogo} name="user-circle" color="grey" size={35}/>
+                  </View>
+                  <View style={{flex: 3}}>
+                    <View><Text>Mark Pereira</Text></View>
+                    <View><Text>kjfnjssdfnjksdfjknsdjknsdfjknsdfjkn</Text></View>
+                    <View><Text>sldnfsdlkfn</Text></View>
+                  </View>
+                  <View style={{ borderBottomColor: '#999', borderBottomWidth: 1, marginTop: 10}}/>
+                </View>
+                <View style={styles.messageDescription}>
+                  <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+                    <FontAwesomeIcon style={styles.loginLogo} name="user-circle" color="grey" size={35}/>
+                  </View>
+                  <View style={{flex: 3}}>
+                    <View><Text>Mark Pereira</Text></View>
+                    <View><Text>kjfnjssdfnjksdfjknsdjknsdfjknsdfjkn</Text></View>
+                    <View><Text>sldnfsdlkfn</Text></View>
+                  </View>
+                  <View style={{ borderBottomColor: '#999', borderBottomWidth: 1, marginTop: 10}}/>
+                </View>
+              </View>
               <Image style={{width: width - 40, marginBottom: 3, resizeMode:'contain'}} source={require('../../public/wot-mock.png')}/>
               <Image style={{width: width - 40, marginBottom: 3, resizeMode:'contain'}} source={require('../../public/pdevices.png')}/>
-            </View>
+            </ScrollView>
           </View>
+            {/*Rest of App come ABOVE the action button component!*/}
+            <ActionButton position="right" radius={80} buttonColor="rgba(231,76,60,1)">
+              <ActionButton.Item buttonColor='#9b59b6' title="New Task" onPress={() => console.log("notes tapped!")}>
+                <Icon name="ios-send" style={styles.actionButtonIcon} />
+              </ActionButton.Item>
+              <ActionButton.Item buttonColor='#3498db' title="Notifications" onPress={() => {}}>
+                <Icon name="ios-basketball" style={styles.actionButtonIcon} />
+              </ActionButton.Item>
+              <ActionButton.Item buttonColor='#1abc9c' title="All Tasks" onPress={() => {}}>
+                <Icon name="ios-browsers" style={styles.actionButtonIcon} />
+              </ActionButton.Item>
+            </ActionButton>
+          <EnsRegistry onRegister={this._getENS} isVisible={showEnsModal} toggleFunction={this.showEnsModal}/>
         </Drawer>
         <Toast
           ref='toast'
@@ -193,13 +221,16 @@ export default class UserProfile extends Component<Props> {
 
 
 const styles = StyleSheet.create({
+  actionButtonIcon: {
+    fontSize: 20,
+    height: 22,
+    color: 'white',
+  },
   container: {
     flex: 1,
-    padding: 20,
-    paddingBottom: 30,
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#eee',
+    backgroundColor: '#482a63',
   },
   drawer: {
     backgroundColor: 'black',
@@ -220,6 +251,14 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'row',
     marginTop: 20,
+  },
+  messagesContainer: {
+    width: width - 20,
+    borderRadius: 10,
+    backgroundColor: 'white',
+  },
+  messageDescription: {
+    flexDirection: 'row',
   },
   topNavText: {
     fontFamily: 'DIN Condensed',

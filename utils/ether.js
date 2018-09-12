@@ -18,8 +18,9 @@ const contractAddress = '0x624a5458c3ceb82E0ef1830b9a7a25525d07F69e';
 const publicAddress = '0x37386A1c592Ad2f1CafFdc929805aF78C71b1CE7';
 
 export const createWallet = async () => {
-  // const accounts = await loadAccounts();
-  // if (accounts.length === 0) {
+  const accounts = await loadAccounts();
+  console.log('ACCOUNTS: ', accounts);
+  if (accounts.length === 0) {
     console.log('Account Saved ✅');
     const newWallet = Wallet.generate();
     const privKey = newWallet.getPrivateKeyString();
@@ -30,8 +31,12 @@ export const createWallet = async () => {
       "privKey": privKey.substring(2),
       "address": address.substring(2)
     };
+    // const account = {
+    //   "privKey": privKey.substring(2),
+    //   "address": address
+    // };
     saveAccount(account);
-  // }
+  }
 };
 
 export const _sendETH = async (_addr, _amount, _data) => {
