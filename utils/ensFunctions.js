@@ -1,22 +1,22 @@
+import {getPubKey} from "../src/util/db";
+
 const Web3 = require('web3');
 const web3 = new Web3();
 web3.setProvider(new web3.providers.HttpProvider('https://ropsten.infura.io/rqmgop6P5BDFqz6yfGla'));
 // const sha3 = require('sha3');
 
 let factoryContract = null;
-const factoryAbi = [{"constant":false,"inputs":[{"name":"_topLevelDomain","type":"string"},{"name":"_subDomain","type":"string"},{"name":"_owner","type":"address"},{"name":"_target","type":"address"}],"name":"newSubdomain","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"anonymous":false,"inputs":[{"indexed":true,"name":"creator","type":"address"},{"indexed":true,"name":"owner","type":"address"},{"indexed":false,"name":"domain","type":"string"},{"indexed":false,"name":"subdomain","type":"string"}],"name":"SubdomainCreated","type":"event"},{"constant":true,"inputs":[{"name":"_subDomain","type":"string"},{"name":"_topLevelDomain","type":"string"}],"name":"subDomainOwner","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"}]
+const factoryAbi = [{"constant":true,"inputs":[],"name":"resolver","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_subdomain","type":"string"},{"name":"_domain","type":"string"},{"name":"_topdomain","type":"string"}],"name":"subdomainOwner","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_registry","type":"address"}],"name":"updateRegistry","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_node","type":"bytes32"},{"name":"_owner","type":"address"}],"name":"transferDomainOwnership","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"_domain","type":"string"},{"name":"_topdomain","type":"string"}],"name":"domainOwner","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_subdomain","type":"string"},{"name":"_domain","type":"string"},{"name":"_topdomain","type":"string"}],"name":"subdomainTarget","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"registry","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"lockDomainOwnershipTransfers","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"owner","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_owner","type":"address"}],"name":"transferContractOwnership","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_subdomain","type":"string"},{"name":"_domain","type":"string"},{"name":"_topdomain","type":"string"},{"name":"_owner","type":"address"},{"name":"_target","type":"address"}],"name":"newSubdomain","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"locked","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_resolver","type":"address"}],"name":"updateResolver","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"inputs":[{"name":"_registry","type":"address"},{"name":"_resolver","type":"address"}],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"name":"creator","type":"address"},{"indexed":true,"name":"owner","type":"address"},{"indexed":false,"name":"subdomain","type":"string"},{"indexed":false,"name":"domain","type":"string"},{"indexed":false,"name":"topdomain","type":"string"}],"name":"SubdomainCreated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"previousOwner","type":"address"},{"indexed":true,"name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"previousRegistry","type":"address"},{"indexed":true,"name":"newRegistry","type":"address"}],"name":"RegistryUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"previousResolver","type":"address"},{"indexed":true,"name":"newResolver","type":"address"}],"name":"ResolverUpdated","type":"event"},{"anonymous":false,"inputs":[],"name":"DomainTransfersLocked","type":"event"}]
 
-// Local
-// const factoryAddress = "0x9fbda871d559710256a2502a2517b794b482db40";
 
-// // Ropsten
-const factoryAddress = "0xf9fa2ff44a474b6d20500969bda61c2827fbc6b6";
+// Ropsten
+const factoryAddress = "0x62d6C93DF120FCa09a08258f3a644B5059aa12f0";
 
 // Mainnet
-//factoryAddress: "0x21aa8d3eee8be2333ed180e9a5a8c0729c9b652c",
+  //factoryAddress: "0x21aa8d3eee8be2333ed180e9a5a8c0729c9b652c",
 
 factoryContract = new web3.eth.Contract(factoryAbi, factoryAddress);
-let currentAccount;
+let currentAccount = getPubKey();
 
 var isChecksumAddress = function (address) {
   // Check each case
@@ -74,10 +74,10 @@ export const loadAccount = () => {
   });
 };
 
-export const checkSubdomainOwner = async (subdomain, domain) => {
+export const checkSubdomainOwner = async (subdomain, domain, topdomain) => {
   if (subdomain && domain) {
     try {
-      return await factoryContract.methods.subDomainOwner(subdomain, domain).call();
+      return await factoryContract.methods.subdomainOwner(subdomain, domain, 'xyz').call();
     } catch(e) {
       return "Error connecting to subdomain provider";
     }
@@ -91,7 +91,7 @@ export const newSubdomain = (subdomain, domain, owner, target) => {
     subdomain, domain, owner, target).send(
     {
       gas: 150000,
-      from: '0x37386A1c592Ad2f1CafFdc929805aF78C71b1CE7'
+      from: currentAccount
     },
     function(error, result){
       if(error){
@@ -105,12 +105,12 @@ export const newSubdomain = (subdomain, domain, owner, target) => {
 
 export const setSubdomain = async () => {
   const data = await factoryContract.methods.newSubdomain(subdomain, domain, owner, target).encodeABI();
-  const nonce = await web3.eth.getTransactionCount(account1.publicKey);
+  const nonce = await web3.eth.getTransactionCount(currentAccount);
   const chainId = await web3.eth.net.getId();
 
   const rawTx = {
     "nonce": nonce,
-    "from": account1.publicKey,
+    "from": currentAccount,
     "to": "0xdb0a1cf7ec068fd48a3f5869bf4f60b62e4ecb5e",
     "value": "0x0",
     "gas": 40000,
@@ -136,50 +136,3 @@ export const setSubdomain = async () => {
     })
 }
 
-export const initActions = () => {
-  $("#domain").on("change", function() {
-    updateDomainAvailable();
-  });
-  $("#subdomain").on("paste keyup", function() {
-    updateDomainAvailable();
-  });
-  $("#owner").on("paste keyup", function() {
-    $("ownerHelp").remove();
-    validateAddress("#owner");
-  });
-  $("#target").on("paste keyup", function() {
-    $("targetHelp").remove();
-    validateAddress("#target");
-  });
-
-  $("#subdomain-form").submit(function(event) {
-    event.preventDefault();
-
-    $("#ownerHelp").remove();
-    $("#targetHelp").remove();
-
-    let fullDomain = $('#subdomain').val() + "." +
-      $('#domain option').filter(":selected").val() + ".eth";
-
-    $("a").attr("href", "https://ropsten.etherscan.io/enslookup?q=" + fullDomain);
-    $('#confirmModal').modal('show');
-
-    $("#subdomain").removeClass("is-valid is-invalid");
-    newSubdomain(
-      $('#subdomain').val(),
-      $('#domain option').filter(":selected").val(),
-      $('#owner').val(),
-      $('#target').val()
-    );
-  });
-};
-
-export const validateAddress = (element) => {
-  if(web3.utils.isAddress($(element).val())){
-    $(element).removeClass("is-invalid");
-  } else {
-    $(element).addClass("is-invalid");
-  }
-}
-
-init();

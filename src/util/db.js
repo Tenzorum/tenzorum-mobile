@@ -16,9 +16,40 @@
 
 'use strict';
 
-import SecureStorage from 'react-native-secure-storage';
 import { AsyncStorage } from 'react-native';
 import { accountId } from './account';
+import SecureStorage, { ACCESS_CONTROL, ACCESSIBLE, AUTHENTICATION_TYPE } from 'react-native-secure-storage'
+const config = {
+  // accessControl: ACCESS_CONTROL.BIOMETRY_ANY_OR_DEVICE_PASSCODE,
+  accessible: ACCESSIBLE.WHEN_UNLOCKED,
+  authenticationPrompt: 'Access your account',
+  service: 'tenzorum',
+  // authenticateType: AUTHENTICATION_TYPE.BIOMETRICS,
+};
+const privKey = 'privKey';
+const pubKey = 'pubKey';
+
+const pubConfig = {
+  accessible: ACCESSIBLE.WHEN_UNLOCKED,
+  authenticationPrompt: 'View your address',
+  service: 'tenzorum',
+};
+
+export const saveKey = async (key) => {
+  await SecureStorage.setItem(privKey, key, config);
+};
+
+export const getKey = async () => {
+  return await SecureStorage.getItem(privKey, config)
+};
+
+export const savePubKey = async (key) => {
+  await SecureStorage.setItem(pubKey, key, pubConfig);
+};
+
+export const getPubKey = async () => {
+  return await SecureStorage.getItem(pubKey, pubConfig)
+};
 
 const accountsStore_v1 = {
   keychainService: 'accounts',

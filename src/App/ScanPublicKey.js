@@ -19,7 +19,6 @@ import OneSignal from 'react-native-onesignal';
 import EntypoIcon from 'react-native-vector-icons/Entypo'
 import MaterialCommIcon from 'react-native-vector-icons/MaterialCommunityIcons'
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome'
-import Input from './Input'
 
 let { height, width } = Dimensions.get('window');
 
@@ -27,19 +26,13 @@ import {navigate, resetAction} from "../../utils/navigationWrapper";
 import ReactNativeHaptic from 'react-native-haptic';
 import TouchID from 'react-native-touch-id';
 
-// import { decodeTransaction, getTxFields, toAddress, serialize, unserialize, ec, sign, fromPhrase } from '../../common';
-import {color} from "./themes";
-
 import Camera from 'react-native-camera';
 import * as Animatable from "react-native-animatable";
+import {getPubKey, getKey} from "../util/db";
 
 const Web3 = require('web3');
 const web3 = new Web3();
 web3.setProvider(new web3.providers.HttpProvider('https://ropsten.infura.io/rqmgop6P5BDFqz6yfGla'));
-// web3.setProvider(new web3.providers.HttpProvider('https://www.etherdevswamp.org/rtethrpc'));
-const privKey = 'cf06f0b35515af10b5dfef470e3a1e743470bf9033d06f198b4e829cb2e7ef05';
-const privateKey = Buffer.from('cf06f0b35515af10b5dfef470e3a1e743470bf9033d06f198b4e829cb2e7ef05', 'hex')
-
 const Tx = require('ethereumjs-tx');
 
 
@@ -48,12 +41,16 @@ export default class ScanPublicKey extends Component {
   static navigationOptions = ({ navigation }) => {
     return {
       tabBarIcon: ({tintColor}) =>  <EntypoIcon size={35} name="emoji-happy" color="#1D2533"/>,
-      title: 'Tenzorum',
       headerTitleStyle : { color: 'white'},
+      headerLeft: (
+        <TouchableOpacity onPress={() => navigation.goBack(0)} style={{ width: 35, height: 35, borderRadius: 10, backgroundColor: 'rgba(0,0,0,0.4)', alignItems: 'center', justifyContent: 'center', margin: 10 }}>
+          <EntypoIcon name="chevron-left" size={25} color="white" />
+        </TouchableOpacity>
+      ),
       headerStyle:
         {
           position: 'absolute',
-          backgroundColor: '#1D2533',
+          backgroundColor: 'transparent',
           zIndex: 100,
           top: 0,
           left: 0,
@@ -120,6 +117,8 @@ export default class ScanPublicKey extends Component {
   };
 
   componentDidMount() {
+    const { publicAddress } = this.state;
+    this.setState({publicAddress: getPubKey()});
     fetch('https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD')
       .then((response) => response.json())
       .then((responseJson) => {
@@ -129,25 +128,20 @@ export default class ScanPublicKey extends Component {
       .catch((error) => {
         console.error(error);
       });
-    web3.eth.getTransactionCount('0x37386A1c592Ad2f1CafFdc929805aF78C71b1CE7')
-      .then(txCount => this.setState({txCount}));
-    web3.eth.getCoinbase((err, coinbase) => {
-      const balance = web3.eth.getBalance('0x37386A1c592Ad2f1CafFdc929805aF78C71b1CE7', (err2, balance) => {
-        console.log('balance ' + balance);
-        this.setState({balance});
-      });
-    });
+    // web3.eth.getTransactionCount(publicAddress)
+    //   .then(txCount => this.setState({txCount}));
+    //
   }
 
   _sendETH = async (addr, amount) => {
+    const { publicAddress } = this.state;
     if(addr && amount) {
-      const nonce = await web3.eth.getTransactionCount('0x37386A1c592Ad2f1CafFdc929805aF78C71b1CE7');
+      const nonce = await web3.eth.getTransactionCount(publicAddress);
       const data = '';
-      // var send = web3.eth.sendTransaction({from:eth.coinbase,to:contract_address, value:web3.toWei(0.05, "ether")});
       const chainId = await web3.eth.net.getId();
       const rawTx = {
         nonce: nonce,
-        from: '0x37386A1c592Ad2f1CafFdc929805aF78C71b1CE7',
+        from: publicAddress,
         to: '0xa1b02d8c67b0fdcf4e379855868deb470e169cfb',
         value: 100000000000000000,
         gasPrice: 20000000000,
@@ -157,7 +151,7 @@ export default class ScanPublicKey extends Component {
       };
 
       const tx = new Tx(rawTx);
-      tx.sign(privateKey);
+      tx.sign(Buffer.from(getKey(), 'hex'));
 
       const serializedTx = tx.serialize();
 
@@ -169,11 +163,9 @@ export default class ScanPublicKey extends Component {
       web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'))
         .on('transactionHash', (txHash) => {
           console.log('TransactionHash:' , txHash);
-          // this.setState({log: 'Pending Transaction', logColor: 'red', transactionHash: txHash})
         })
         .on('receipt', (rec) => {
           console.log('Receipt:' , rec);
-          // this.setState({log: 'Transaction Complete', logColor: 'green', transactionHash: rec.transactionHash})
         })
     }
   };
@@ -194,9 +186,8 @@ export default class ScanPublicKey extends Component {
 
   _signKey = async (msg, socketId) => {
     ReactNativeHaptic.generate('selection');
-    const account = await web3.eth.accounts.privateKeyToAccount(privKey)
-      .sign(msg);
-
+    const account = getPubKey()
+    console.log('ACCOUNT SIGNATURE: ', account.signature);
     console.log('PHONE ID: ', this.state.phoneUid);
     fetch(`https://login.tenzorum.app/login/${socketId}/${this.state.phoneUid}/${msg}/${account.signature}`)
       .then((res) => {
@@ -213,10 +204,8 @@ export default class ScanPublicKey extends Component {
 
     if (read) {
       const dataArray = read.data.split('.');
-      // this._signKey(dataArray[0], dataArray[1]);
       TouchID.authenticate('verify user')
         .then(success => {
-          // alert('signing');
           this._signKey(dataArray[0], dataArray[1]);
           this.setState({socketId: dataArray[1]})
         })
@@ -224,25 +213,9 @@ export default class ScanPublicKey extends Component {
           console.log('ERROR: ', error);
         });
     }
-
-
   };
-  handleViewRef = ref => this.view = ref;
-
-  bounce = () => {
-
-    if (this.state.showInput === false) {
-      this.setState({showInput: !this.state.showInput});
-      this.view.bounceInDown(1000).then(endState => console.log(endState.finished ? 'bounce finished' : 'bounce cancelled'));
-    } else {
-      this.view.bounceOutDown(1000).then(endState => console.log(endState.finished ? this.setState({showInput: !this.state.showInput}) : 'bounce cancelled'));
-    }
-  }
-
 
   render() {
-    // const { name } = this.props.navigation.state.params.data;
-    const name = 'hello';
     const {pubKey, privKey, balance, txCount, exchangeRate} = this.state;
     privKey && pubKey ? this._saveKeys() : null;
     return (
@@ -262,12 +235,12 @@ export default class ScanPublicKey extends Component {
       >
           <View style={styles.container}>
             <View style={{ width: width - 40, flexDirection: 'row', marginTop: 20, alignItems: 'center', justifyContent: 'space-between'}}>
-              <TouchableOpacity onPress={() => navigate('WalletMain')}>
-                {/*<View style={styles.loginButton}>*/}
-                  <FontAwesomeIcon style={styles.loginLogo} name="user-circle" color="white" size={35}/>
-                {/*</View>*/}
-              </TouchableOpacity>
-              <Text style={styles.topNavText}>TENZORUM</Text>
+              {/*<TouchableOpacity onPress={() => navigate('WalletMain')}>*/}
+                <View style={styles.loginButton}>
+                  {/*<FontAwesomeIcon style={styles.loginLogo} name="user-circle" color="white" size={35}/>*/}
+                </View>
+              {/*</TouchableOpacity>*/}
+              <Text style={styles.topNavText}></Text>
               <TouchableOpacity style={{zIndex: 99999999999}} onPress={this.openControlPanel}>
                 <EntypoIcon size={35} name="dots-three-vertical" color="#1D2533"/>
               </TouchableOpacity>
@@ -330,7 +303,6 @@ const styles = StyleSheet.create({
     paddingBottom: 30,
     justifyContent: 'space-between',
     alignItems: 'center',
-    // backgroundColor: 'rgba(255,255,255,0.4)',
   },
   centerText: {
     flex: 1,

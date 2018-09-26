@@ -44,6 +44,7 @@ export default class Input extends Component {
           style={styles.input}
           selectionColor='grey'
           autoCapitalize={autoCapitalize}
+          numberOfLines={1}
         />
       </View>
     )
@@ -61,18 +62,18 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     backgroundColor: 'transparent',
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 10,
+    // borderColor: '#ccc',
+    // borderWidth: 1,
+    // borderRadius: 10,
     paddingLeft: 4,
     overflow: 'hidden',
-    shadowColor: 'rgba(0,0,0,0.5)',
-    shadowRadius: 1,
-    shadowOpacity: 1,
-    shadowOffset: {
-      width: 0,
-      height: 0
-    },
+    // shadowColor: 'rgba(0,0,0,0.5)',
+    // shadowRadius: 1,
+    // shadowOpacity: 1,
+    // shadowOffset: {
+    //   width: 0,
+    //   height: 0
+    // },
   },
   inputStyle: {
     marginLeft: 10,

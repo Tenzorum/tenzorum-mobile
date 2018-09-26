@@ -1,54 +1,35 @@
 import React, { Component } from 'react';
 import {
-  AppRegistry,
-  Clipboard,
   StyleSheet,
   Text,
   View,
   Keyboard,
-  Image,
   Dimensions,
-  ScrollView,
   TouchableOpacity,
-  Platform,
   TouchableWithoutFeedback,
 } from 'react-native';
 const Web3 = require('web3');
+const web3 = new Web3();
+web3.setProvider(new web3.providers.HttpProvider('https://ropsten.infura.io/rqmgop6P5BDFqz6yfGla'));
+
 import Toast from 'react-native-easy-toast';
-const Contacts = require('react-native-contacts');
-import * as Animatable from 'react-native-animatable';
 import Drawer from 'react-native-drawer';
-import Modal from 'react-native-modal';
 import ActionButton from 'react-native-circular-action-menu';
 import Icon from 'react-native-vector-icons/Ionicons';
-import {transferEtherNoReward, transferTokensNoReward} from 'tenzorum'
-import {checkSubdomainOwner, newSubdomain, loadAccount, addressResolver} from "../../utils/ensFunctions";
+import FeatherIcon from 'react-native-vector-icons/Feather'
+import MaterialCommIcon from 'react-native-vector-icons/MaterialCommunityIcons'
 
 import DrawerView from './DrawerView';
 import QrModal from '../components/QrModal';
 import CameraModal from '../components/CameraModal';
-import TxPopUp from './TxPopUp';
-// import QRCode from './QRCode';
-import EntypoIcon from 'react-native-vector-icons/Entypo'
-import MaterialCommIcon from 'react-native-vector-icons/MaterialCommunityIcons'
-import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome'
+import TransactionModal from '../components/TransactionModal';
 import Input from '../components/Input'
 
-import Camera from 'react-native-camera';
-import FeatherIcon from 'react-native-vector-icons/Feather'
-import Button from '../components/Button'
-
-const web3 = new Web3();
-web3.setProvider(new web3.providers.HttpProvider('https://ropsten.infura.io/rqmgop6P5BDFqz6yfGla'));
 import {text, shadow} from "./themes";
-
-let { height, width } = Dimensions.get('window');
-import { navigate } from "../../utils/navigationWrapper";
-import {ethSign, keccak} from "../util/native";
 import { getPrivateKey, getPublicKey, loadAccounts } from "../util/db";
-import EnsRegistry from "../components/EnsRegistry";
-// const dat = ethSign("hello");
-// console.log("LE KECCAK: ", dat);
+import {checkSubdomainOwner, newSubdomain, loadAccount, addressResolver} from "../../utils/ensFunctions";
+let { height, width } = Dimensions.get('window');
+
 const emptyAddress = '0x0000000000000000000000000000000000000000';
 const currentAccount = "0x37386A1c592Ad2f1CafFdc929805aF78C71b1CE7";
 
@@ -81,7 +62,9 @@ export default class WalletMain extends Component<Props> {
     exchangeRate: 0,
     cameraModalVisible: false,
     qrModalVisible: false,
+    transactionModalVisible: false,
     ensDomain: '',
+    addressChecked: false,
     ensAvailable: false,
     publicAddress: '',
     ensMessage: ''
@@ -93,16 +76,16 @@ export default class WalletMain extends Component<Props> {
   }
 
   _sendEth = async () => {
-    const payload = await transferTokensNoReward('0xDb0A1cf7EC068fd48A3f5869Bf4f60B62e4ECB5E', 10000000000, '0xa1b02d8c67b0fdcf4e379855868deb470e169cfb');
+    const payload = await transferEtherWithEtherReward('1000000000000000', '0xa1b02d8c67b0fdcf4e379855868deb470e169cfb', 1000);
     // const payload = await transferEtherNoReward(1, '0x37386A1c592Ad2f1CafFdc929805aF78C71b1CE7');
     console.log('PAYLOAD: ', payload);
-    const res = await fetch('https://tenz-tsn-js-ltvphcqvfo.now.sh/execute/0xf74694642a81a226771981cd38df9105a133c111', {
+    const res = await fetch('https://tenz-tsn-js-isochfcikf.now.sh/execute/0xf74694642a81a226771981cd38df9105a133c111', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(payload)
+      body: payload
     });
     console.log('RESPONSE: ', res)
     return res
@@ -133,7 +116,7 @@ export default class WalletMain extends Component<Props> {
   };
 
   render() {
-    const { exchangeRate, qrModalVisible, cameraModalVisible, ensMessage, ensAvailable } = this.state;
+    const { exchangeRate, qrModalVisible, cameraModalVisible, transactionModalVisible, ensMessage, ensAvailable } = this.state;
     return (
       <TouchableWithoutFeedback>
         <View onPress={Keyboard.dismiss} style={{flex: 1}}>
@@ -153,13 +136,6 @@ export default class WalletMain extends Component<Props> {
                 <MaterialCommIcon name="qrcode-scan" size={20}/>
               </TouchableOpacity>
             </View>
-            {/*<ScrollView style={{marginRight: -20, marginLeft: -20, height: 100, padding: 10, flex: 0}} horizontal showsHorizontalScrollIndicator={false}>*/}
-              {/*<View style={styles.cryptoBox}/>*/}
-              {/*<View style={styles.cryptoBox}/>*/}
-              {/*<View style={styles.cryptoBox}/>*/}
-              {/*<View style={styles.cryptoBox}/>*/}
-              {/*<View style={styles.cryptoBox}/>*/}
-            {/*</ScrollView>*/}
             <View style={styles.transactionBox}>
               <View style={styles.inputAndButton}>
                 <Input placeholder="Send to..." onChangeText={this._resolveAddress} autoCapitalize="none"/>
@@ -180,7 +156,7 @@ export default class WalletMain extends Component<Props> {
             <View style={{flex:1, backgroundColor: '#f3f3f3', alignItems: 'flex-end'}}>
               {/*Rest of App come ABOVE the action button component!*/}
               <ActionButton position="right" radius={80} buttonColor="rgba(231,76,60,1)">
-                <ActionButton.Item buttonColor='#9b59b6' title="New Task" onPress={() => console.log("notes tapped!")}>
+                <ActionButton.Item buttonColor='#9b59b6' title="New Task" onPress={() => this.setState({transactionModalVisible: !transactionModalVisible})}>
                   <Icon name="ios-send" style={styles.actionButtonIcon} />
                 </ActionButton.Item>
                 <ActionButton.Item buttonColor='#3498db' title="Notifications" onPress={() => {}}>
@@ -191,8 +167,9 @@ export default class WalletMain extends Component<Props> {
                 </ActionButton.Item>
               </ActionButton>
             </View>
+            <TransactionModal isVisible={cameraModalVisible} modalControl={() => this.setState({transactionModalVisible: !transactionModalVisible})}/>
             <CameraModal isVisible={cameraModalVisible} modalControl={() => this.setState({cameraModalVisible: !cameraModalVisible})}/>
-            <QrModal value={'0x234423213423423413244231'} isVisible={qrModalVisible} modalControl={() => this.setState({qrModalVisible: !qrModalVisible})}/>
+            <QrModal value={'0xa1b02d8c67b0fdcf4e379855868deb470e169cfb'} isVisible={qrModalVisible} modalControl={() => this.setState({qrModalVisible: !qrModalVisible})}/>
           </View>
         </Drawer>
         <Toast

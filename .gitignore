@@ -30,6 +30,8 @@ build/
 local.properties
 *.iml
 
+src/tenzorum
+
 # node.js
 #
 node_modules/

@@ -12,6 +12,7 @@ import OneSignal from "react-native-onesignal";
 import {navigate} from "../../utils/navigationWrapper";
 import TouchID from "react-native-touch-id";
 import OctIcon from 'react-native-vector-icons/Octicons';
+import FeatherIcon from "react-native-vector-icons/Feather";
 const Web3 = require('web3');
 const web3 = new Web3();
 web3.setProvider(new web3.providers.HttpProvider('https://ropsten.infura.io/rqmgop6P5BDFqz6yfGla'));
@@ -73,21 +74,24 @@ export default class QrModal extends Component {
 
   _onBarcodeRead = (read) => {
     if (read) {
-      const dataArray = read.data.split('.');
-      TouchID.authenticate('verify user')
-        .then(success => {
-          this._signKey(dataArray[0], dataArray[1]);
-          this.setState({socketId: dataArray[1]})
-        })
-        .catch(error => {
-          console.log('ERROR: ', error);
-        });
+      console.log('READ PUBLIC ADDRESS', read.data)
+      this.props.addressScan(read.data)
+      this.props.modalControl();
+      // const dataArray = read.data.split('.');
+      // TouchID.authenticate('verify user')
+      //   .then(success => {
+      //     this._signKey(dataArray[0], dataArray[1]);
+      //     this.setState({socketId: dataArray[1]})
+      //   })
+      //   .catch(error => {
+      //     console.log('ERROR: ', error);
+      //   });
     }
   };
 
   render () {
     return (
-      <Modal style={{marginLeft: 10,width: 200, height: 200, borderRadius: 15, alignItems: 'center', justifyContent: 'center'}} isVisible={this.props.isVisible}>
+      <Modal style={{marginLeft: 90,width: 200, height: 200, borderRadius: 15, alignItems: 'center', justifyContent: 'center'}} isVisible={this.props.isVisible}>
         <Camera
           ref={(cam) => {
             this.camera = cam;
@@ -103,7 +107,7 @@ export default class QrModal extends Component {
           })}
         />
         <TouchableOpacity onPress={this.props.modalControl} style={{width: 40, height: 40, marginTop: 10, borderRadius: 10, backgroundColor: 'rgba(0,0,0,0.5)', alignItems: 'center', justifyContent: 'center'}}>
-          <OctIcon name="x" size={30} color="rgba(255,255,255,0.5)"/>
+          <FeatherIcon name="x" size={25} color="white"/>
         </TouchableOpacity>
       </Modal>
     )

@@ -1,48 +1,37 @@
 import React, { Component } from 'react';
 import {
-  AppRegistry,
-  Clipboard,
+  Dimensions,
+  Image,
+  KeyboardAvoidingView,
+  ScrollView,
   StyleSheet,
   Text,
-  View,
-  Image,
-  Dimensions,
-  ScrollView,
   TouchableOpacity,
-  Platform, TouchableWithoutFeedback,
+  View,
 } from 'react-native';
 const Web3 = require('web3');
-import Toast from 'react-native-easy-toast';
-const Contacts = require('react-native-contacts');
-import * as Animatable from 'react-native-animatable';
-// import QRCode from 'react-native-qrcode';
-import Drawer from 'react-native-drawer';
-
-import {checkSubdomainOwner, newSubdomain, loadAccount} from "../../utils/ensFunctions";
-
-
-import DrawerView from './DrawerView';
-import TxPopUp from './TxPopUp';
-// import QRCode from './QRCode';
-import EntypoIcon from 'react-native-vector-icons/Entypo'
-import MaterialCommIcon from 'react-native-vector-icons/MaterialCommunityIcons'
-import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome'
-import Input from './Input'
-import FeatherIcon from 'react-native-vector-icons/Feather'
-import Button from '../components/Button'
-
 const web3 = new Web3();
 web3.setProvider(new web3.providers.HttpProvider('https://ropsten.infura.io/rqmgop6P5BDFqz6yfGla'));
-import {text} from "./themes";
+
+import Toast from 'react-native-easy-toast';
+const Contacts = require('react-native-contacts');
+import Drawer from 'react-native-drawer';
+import ActionButton from "react-native-circular-action-menu";
+import LinearGradient from 'react-native-linear-gradient'
+import SimpleLineIcon from 'react-native-vector-icons/SimpleLineIcons'
+import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome'
+import FeatherIcon from 'react-native-vector-icons/Feather'
 
 let { height, width } = Dimensions.get('window');
-import { navigate } from "../../utils/navigationWrapper";
-import { ethSign, words } from "../util/native";
-import { getPrivateKey, getPublicKey, loadAccounts } from "../util/db";
-import EnsRegistry from "../components/EnsRegistry";
-import ActionButton from "react-native-circular-action-menu";
-import Icon from "react-native-vector-icons/Ionicons";
 
+import DrawerView from './DrawerView';
+import { navigate } from "../../utils/navigationWrapper";
+import { getPubKey } from "../util/db";
+import EnsRegistry from "../components/EnsRegistry";
+import CameraModal from '../components/CameraModal';
+import TransactionModal from '../components/TransactionModal';
+import QrModal from "../components/QrModal";
+import MaterialCommIcon from "react-native-vector-icons/MaterialCommunityIcons";
 
 type Props = {};
 export default class UserProfile extends Component<Props> {
@@ -76,14 +65,16 @@ export default class UserProfile extends Component<Props> {
     ensDomain: '',
     ensAvailable: false,
     username: false,
-    showEnsModal: false
+    showEnsModal: true, //TODO: make false
+    cameraModalVisible: false,
+    transactionModalVisible: false,
+    qrModalVisible: false,
   };
 
   componentDidMount() {
+    this._init();
     Contacts.getAll((err, contacts) => {
       if (err) throw err;
-
-      // contacts returned
       console.log('LE CONTACTS', contacts)
     });
 
@@ -96,25 +87,22 @@ export default class UserProfile extends Component<Props> {
       .catch((error) => {
         console.error(error);
       });
-    web3.eth.getTransactionCount('0x37386A1c592Ad2f1CafFdc929805aF78C71b1CE7')
+  }
+
+  _init = async () => {
+    const pubKey =  await getPubKey()
+    this.setState({publicAddress: pubKey})
+    const { publicAddress } = this.state;
+
+    web3.eth.getTransactionCount(pubKey)
       .then(txCount => this.setState({txCount}));
     web3.eth.getCoinbase((err, coinbase) => {
-      const balance = web3.eth.getBalance('0x37386A1c592Ad2f1CafFdc929805aF78C71b1CE7', (err2, balance) => {
+      const balance = web3.eth.getBalance(publicAddress, (err2, balance) => {
         console.log('balance ' + balance);
         this.setState({balance});
       });
     });
   }
-
-  // _getAccounts = async () => {
-  //   const accounts = await loadAccounts();
-  //   const account1 = accounts.length;
-  //   console.log("address");
-  //   console.log(account1);
-  // }
-
-
-  handleViewRef = ref => this.view = ref;
 
   showEnsModal  = () => this.setState({ showEnsModal: !this.state.showEnsModal });
 
@@ -135,7 +123,7 @@ export default class UserProfile extends Component<Props> {
   };
 
   render() {
-    const { showEnsModal } = this.state;
+    const { showEnsModal, cameraModalVisible, transactionModalVisible, qrModalVisible, publicAddress } = this.state;
     return (
       <View style={{flex: 1}}>
         <Drawer
@@ -147,62 +135,79 @@ export default class UserProfile extends Component<Props> {
           style={styles.drawerStyles}
           openDrawerOffset={width/2}
         >
-          <View style={styles.container}>
-            <View style={{ width: width - 40, flexDirection: 'row', marginTop: 20, alignItems: 'center', justifyContent: 'space-between'}}>
-              <TouchableOpacity onPress={() => navigate('WalletMain')}>
+          <LinearGradient
+            start={{x: 0.0, y: 0.0}} end={{x: 1.0, y: 1.0}}
+            colors={['#8785f0', '#5753b1']}
+            style={styles.container}>
+            <View style={{ width: width - 40, flexDirection: 'row', marginTop: 40, marginBottom: 10, alignItems: 'center', justifyContent: 'space-between'}}>
+              <TouchableOpacity onPress={this.showEnsModal}>
                 {/*<View style={styles.loginButton}>*/}
                 <FontAwesomeIcon style={styles.loginLogo} name="user-circle" color="white" size={35}/>
                 {/*</View>*/}
               </TouchableOpacity>
-              <TouchableOpacity style={{width, flexDirection: 'row', padding: 10}} onPress={this.showEnsModal}>
-                <Text style={{ fontSize: 20, color: 'white',  }}>@ {this.state.username ? this.state.username : <Text style={{ fontSize: 20, color: '#999999',}}>Set username</Text>}</Text>
+              <TouchableOpacity style={{ flexDirection: 'row', padding: 10}} onPress={this.showEnsModal}>
+                <Text style={{ fontSize: 20, color: 'white',  }}>@ {this.state.username ? this.state.username : <Text style={{ fontSize: 20, color: 'white',}}>Set username</Text>}</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={{zIndex: 99999999999}} onPress={this.openControlPanel}>
-                <EntypoIcon size={35} name="dots-three-vertical" color="#1D2533"/>
+              <TouchableOpacity onPress={() => this.setState({qrModalVisible: !qrModalVisible })}>
+                <MaterialCommIcon name="qrcode-scan" size={25} color="white"/>
               </TouchableOpacity>
             </View>
-            <ScrollView style={{width: width - 20, flex: 1, flexDirection: 'column' }}>
+            <ScrollView contentContainerStyle={{width: width - 25, height: height + 20, flexDirection: 'column'}} showsVerticalScrollIndicator={false}>
               <View style={styles.messagesContainer}>
                 <View style={styles.messageDescription}>
                   <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
                     <FontAwesomeIcon style={styles.loginLogo} name="user-circle" color="grey" size={35}/>
                   </View>
-                  <View style={{flex: 3}}>
-                    <View><Text>Mark Pereira</Text></View>
-                    <View><Text>kjfnjssdfnjksdfjknsdjknsdfjknsdfjkn</Text></View>
-                    <View><Text>sldnfsdlkfn</Text></View>
+                  <View style={{flex: 4, margin: 10}}>
+                    <View><Text style={{fontWeight: '900'}}>Mark Pereira</Text></View>
+                    <View><Text style={{fontWeight: '600'}}>Tenzorum Dev</Text></View>
+                    <View><Text>Is it time for rum yet?</Text></View>
                   </View>
-                  <View style={{ borderBottomColor: '#999', borderBottomWidth: 1, marginTop: 10}}/>
+                  <View style={{ borderBottomColor: '#777', borderBottomWidth: 2,}}/>
                 </View>
                 <View style={styles.messageDescription}>
                   <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
                     <FontAwesomeIcon style={styles.loginLogo} name="user-circle" color="grey" size={35}/>
                   </View>
-                  <View style={{flex: 3}}>
-                    <View><Text>Mark Pereira</Text></View>
-                    <View><Text>kjfnjssdfnjksdfjknsdjknsdfjknsdfjkn</Text></View>
-                    <View><Text>sldnfsdlkfn</Text></View>
+                  <View style={{flex: 4, margin: 10}}>
+                    <View><Text style={{fontWeight: '900'}}>Moritz Neto</Text></View>
+                    <View><Text style={{fontWeight: '600'}}>Life Advice</Text></View>
+                    <View><Text numberOfLines={1}>I don't think I'm going to shave for the rest of the year man</Text></View>
                   </View>
-                  <View style={{ borderBottomColor: '#999', borderBottomWidth: 1, marginTop: 10}}/>
+                  <View style={{ borderBottomColor: '#777', borderBottomWidth: 2,}}/>
+                </View>
+                <View style={styles.messageDescription}>
+                  <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+                    <FontAwesomeIcon style={styles.loginLogo} name="user-circle" color="grey" size={35}/>
+                  </View>
+                  <View style={{flex: 4, margin: 10}}>
+                    <View><Text style={{fontWeight: '900'}}>Daniel Bar</Text></View>
+                    <View><Text style={{fontWeight: '600'}}>Buidl gang</Text></View>
+                    <View><Text numberOfLines={1}>Tickets to Jamaica booked, TenzCon 2019 otw</Text></View>
+                  </View>
+                  <View style={{ borderBottomColor: '#777', borderBottomWidth: 2,}}/>
                 </View>
               </View>
-              <Image style={{width: width - 40, marginBottom: 3, resizeMode:'contain'}} source={require('../../public/wot-mock.png')}/>
-              <Image style={{width: width - 40, marginBottom: 3, resizeMode:'contain'}} source={require('../../public/pdevices.png')}/>
+              <Image style={{width: width - 25, marginBottom: 3, marginTop: -40, resizeMode:'contain'}} source={require('../../public/wot-mock.png')}/>
+              <Image style={{width: width - 40, marginBottom: 3, marginTop: -80, resizeMode:'contain'}} source={require('../../public/pdevices.png')}/>
+              <View style={{height: 200, width, backgroundColor: 'transparent'}}/>
             </ScrollView>
-          </View>
-            {/*Rest of App come ABOVE the action button component!*/}
-            <ActionButton position="right" radius={80} buttonColor="rgba(231,76,60,1)">
-              <ActionButton.Item buttonColor='#9b59b6' title="New Task" onPress={() => console.log("notes tapped!")}>
-                <Icon name="ios-send" style={styles.actionButtonIcon} />
+          </LinearGradient>
+            <ActionButton position="right" radius={80} buttonColor="white" buttonTextColor="black">
+              <ActionButton.Item size={45} buttonColor='white' title="New Task" onPress={this.openControlPanel}>
+                <FeatherIcon name="settings" style={styles.actionButtonIcon} />
               </ActionButton.Item>
-              <ActionButton.Item buttonColor='#3498db' title="Notifications" onPress={() => {}}>
-                <Icon name="ios-basketball" style={styles.actionButtonIcon} />
+              <ActionButton.Item size={45} buttonColor='white' title="Notifications" onPress={() => this.setState({transactionModalVisible: !transactionModalVisible})}>
+                <SimpleLineIcon size={45} name="wallet" style={styles.actionButtonIcon}/>
               </ActionButton.Item>
-              <ActionButton.Item buttonColor='#1abc9c' title="All Tasks" onPress={() => {}}>
-                <Icon name="ios-browsers" style={styles.actionButtonIcon} />
+              <ActionButton.Item size={45} buttonColor='white' title="All Tasks" onPress={() => navigate('ScanPublicKey')}>
+                <FeatherIcon name="camera" style={styles.actionButtonIcon} />
               </ActionButton.Item>
             </ActionButton>
           <EnsRegistry onRegister={this._getENS} isVisible={showEnsModal} toggleFunction={this.showEnsModal}/>
+          <CameraModal isVisible={cameraModalVisible} modalControl={() => this.setState({cameraModalVisible: !cameraModalVisible})}/>
+          <TransactionModal isVisible={transactionModalVisible} modalControl={() => this.setState({transactionModalVisible: !transactionModalVisible})}/>
+          <QrModal value={publicAddress} isVisible={qrModalVisible} modalControl={() => this.setState({qrModalVisible: !qrModalVisible})}/>
         </Drawer>
         <Toast
           ref='toast'
@@ -224,13 +229,12 @@ const styles = StyleSheet.create({
   actionButtonIcon: {
     fontSize: 20,
     height: 22,
-    color: 'white',
+    color: '#333',
   },
   container: {
     flex: 1,
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#482a63',
   },
   drawer: {
     backgroundColor: 'black',
@@ -253,7 +257,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   messagesContainer: {
-    width: width - 20,
+    width: width - 25,
     borderRadius: 10,
     backgroundColor: 'white',
   },

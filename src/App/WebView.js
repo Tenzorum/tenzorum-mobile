@@ -15,22 +15,29 @@ import {
   WebView,
 } from 'react-native';
 
+import EntypoIcon from 'react-native-vector-icons/Entypo';
+import {backAction} from "../../utils/navigationWrapper";
+
 let {height, width} = Dimensions.get('window');
 
 export default class WebViewTx extends Component {
 
   static navigationOptions = ({ navigation }) => {
     return {
-      headerStyle:
-        {
-          position: 'absolute',
-          backgroundColor: 'transparent',
-          zIndex: 100,
-          top: 0,
-          left: 0,
-          right: 0,
-          borderBottomWidth: 0,
-        },
+      headerStyle: {
+        position: 'absolute',
+        backgroundColor: 'transparent',
+        zIndex: 100,
+        top: 0,
+        left: 0,
+        right: 0,
+        borderBottomWidth: 0,
+      },
+      headerLeft: (
+        <TouchableOpacity onPress={() => navigation.goBack(0)} style={{ width: 35, height: 35, borderRadius: 10, backgroundColor: 'rgba(0,0,0,0.4)', alignItems: 'center', justifyContent: 'center', margin: 10 }}>
+          <EntypoIcon name="chevron-left" size={25} color="white" />
+        </TouchableOpacity>
+      )
     }
   };
 
@@ -46,14 +53,17 @@ export default class WebViewTx extends Component {
   render() {
     const {} = this.state;
     const {isVisible, _this} = this.props;
+    console.log(this.props.navigation);
+    const { uri } = this.props.navigation.state.params;
     return (
       <WebView
-        source={{uri: 'https://tenzorum.org/'}}
-        style={{marginTop: 25, backgroundColor: 'white'}}
+        source={{uri}}
+        style={{marginTop: 25, backgroundColor: 'white', paddingTop: 20, paddingLeft: 10}}
       />
     )
   }
 }
+
 
 
 const styles = StyleSheet.create({

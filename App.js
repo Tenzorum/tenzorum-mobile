@@ -4,7 +4,7 @@ import NavigatorService from './utils/navigationWrapper';
 import ScanPublicKey from './src/App/ScanPublicKey'
 // import QRCode from './src/App/QRCode'
 import WebView from './src/App/WebView'
-import { createWallet } from "./utils/ether";
+import { initApp } from "./utils/ether";
 
 import WalletMain from "./src/App/WalletMain";
 import UserProfile from "./src/App/UserProfile";
@@ -16,7 +16,7 @@ export const Tabs = TabNavigator({
   Home: {screen: UserProfile },
   WalletMain: {screen: WalletMain },
   General: {screen: General}
-}, {
+  }, {
   tabBarPosition: 'bottom',
   animationEnabled: true,
   tabBarOptions: {
@@ -42,14 +42,15 @@ export const Tabs = TabNavigator({
 export const Main = StackNavigator({
   Home: { screen: Tabs },
   WalletMain: { screen: WalletMain },
+  WebView: { screen: WebView },
   UserProfile: { screen: UserProfile },
   ScanPublicKey: { screen: ScanPublicKey },
-}, { headerMode: 'none'});
+});
 
 export default class App extends Component {
 
   componentDidMount() {
-    createWallet();
+    initApp();
   }
 
   render() {
