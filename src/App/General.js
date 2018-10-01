@@ -78,7 +78,6 @@ export default class General extends Component<Props> {
       .then(txCount => this.setState({txCount}));
     web3.eth.getCoinbase((err, coinbase) => {
       const balance = web3.eth.getBalance('0x37386A1c592Ad2f1CafFdc929805aF78C71b1CE7', (err2, balance) => {
-        console.log('balance ' + balance);
         this.setState({balance});
       });
     });

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import {
+  AsyncStorage,
   Dimensions,
   Image,
   KeyboardAvoidingView,
@@ -33,6 +34,8 @@ import TransactionModal from '../components/TransactionModal';
 import QrModal from "../components/QrModal";
 import MaterialCommIcon from "react-native-vector-icons/MaterialCommunityIcons";
 
+const publicAddressPhone = "0xb78197a43836e084bE4ff1F4c84d7557EA11F214";
+
 type Props = {};
 export default class UserProfile extends Component<Props> {
   static navigationOptions = ({ navigation }) => {
@@ -65,7 +68,7 @@ export default class UserProfile extends Component<Props> {
     ensDomain: '',
     ensAvailable: false,
     username: false,
-    showEnsModal: true, //TODO: make false
+    showEnsModal: false,
     cameraModalVisible: false,
     transactionModalVisible: false,
     qrModalVisible: false,
@@ -75,18 +78,18 @@ export default class UserProfile extends Component<Props> {
     this._init();
     Contacts.getAll((err, contacts) => {
       if (err) throw err;
-      console.log('LE CONTACTS', contacts)
     });
 
     fetch('https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD')
       .then((response) => response.json())
       .then((responseJson) => {
-        console.log('RESPONSE: ', responseJson);
         this.setState({exchangeRate: responseJson.USD})
       })
       .catch((error) => {
         console.error(error);
       });
+
+    this._getUsername().then((username) => this.setState({username}));
   }
 
   _init = async () => {
@@ -98,11 +101,14 @@ export default class UserProfile extends Component<Props> {
       .then(txCount => this.setState({txCount}));
     web3.eth.getCoinbase((err, coinbase) => {
       const balance = web3.eth.getBalance(publicAddress, (err2, balance) => {
-        console.log('balance ' + balance);
         this.setState({balance});
       });
     });
   }
+
+  _resetENS = async () => await AsyncStorage.setItem('personalWalletAddress', '');
+
+  _getUsername = async () => await AsyncStorage.getItem('personalWalletAddress');
 
   showEnsModal  = () => this.setState({ showEnsModal: !this.state.showEnsModal });
 
@@ -140,13 +146,13 @@ export default class UserProfile extends Component<Props> {
             colors={['#8785f0', '#5753b1']}
             style={styles.container}>
             <View style={{ width: width - 40, flexDirection: 'row', marginTop: 40, marginBottom: 10, alignItems: 'center', justifyContent: 'space-between'}}>
-              <TouchableOpacity onPress={this.showEnsModal}>
+              <TouchableOpacity onPress={this._resetENS}>
                 {/*<View style={styles.loginButton}>*/}
                 <FontAwesomeIcon style={styles.loginLogo} name="user-circle" color="white" size={35}/>
                 {/*</View>*/}
               </TouchableOpacity>
               <TouchableOpacity style={{ flexDirection: 'row', padding: 10}} onPress={this.showEnsModal}>
-                <Text style={{ fontSize: 20, color: 'white',  }}>@ {this.state.username ? this.state.username : <Text style={{ fontSize: 20, color: 'white',}}>Set username</Text>}</Text>
+                <Text style={{ fontSize: 20, color: 'white',  }}>@ {this.state.username ? this.state.username : <Text style={{ fontSize: 20, color: 'white',}}>Set personal wallet</Text>}</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={() => this.setState({qrModalVisible: !qrModalVisible })}>
                 <MaterialCommIcon name="qrcode-scan" size={25} color="white"/>
@@ -207,7 +213,7 @@ export default class UserProfile extends Component<Props> {
           <EnsRegistry onRegister={this._getENS} isVisible={showEnsModal} toggleFunction={this.showEnsModal}/>
           <CameraModal isVisible={cameraModalVisible} modalControl={() => this.setState({cameraModalVisible: !cameraModalVisible})}/>
           <TransactionModal isVisible={transactionModalVisible} modalControl={() => this.setState({transactionModalVisible: !transactionModalVisible})}/>
-          <QrModal value={publicAddress} isVisible={qrModalVisible} modalControl={() => this.setState({qrModalVisible: !qrModalVisible})}/>
+          <QrModal value={publicAddressPhone} isVisible={qrModalVisible} modalControl={() => this.setState({qrModalVisible: !qrModalVisible})}/>
         </Drawer>
         <Toast
           ref='toast'

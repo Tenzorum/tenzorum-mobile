@@ -35,6 +35,7 @@ const currentAccount = "0x37386A1c592Ad2f1CafFdc929805aF78C71b1CE7";
 
 // a19e5d901ff3c459899800b2f088220ff69c4e465e85e1e1fb84bc64d2921a01
 // 0xF938BfDC53F72cB7a4B1946969bA0ccE05C902c6
+const personalWalletAddress = "0xf8894138aa4d7b54b7d49afa9d5600cdb5178721";
 
 
 
@@ -79,7 +80,7 @@ export default class WalletMain extends Component<Props> {
     const payload = await transferEtherWithEtherReward('1000000000000000', '0xa1b02d8c67b0fdcf4e379855868deb470e169cfb', 1000);
     // const payload = await transferEtherNoReward(1, '0x37386A1c592Ad2f1CafFdc929805aF78C71b1CE7');
     console.log('PAYLOAD: ', payload);
-    const res = await fetch('https://tenz-tsn-js-isochfcikf.now.sh/execute/0xf74694642a81a226771981cd38df9105a133c111', {
+    const res = await fetch('https://tenz-tsn-js-isochfcikf.now.sh/execute/' + personalWalletAddress, {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -87,7 +88,6 @@ export default class WalletMain extends Component<Props> {
       },
       body: payload
     });
-    console.log('RESPONSE: ', res)
     return res
   };
 

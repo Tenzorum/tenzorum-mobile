@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import {
+  AsyncStorage,
   AppRegistry,
   Clipboard,
   StyleSheet,
@@ -9,7 +10,8 @@ import {
   Dimensions,
   ScrollView,
   TouchableOpacity,
-  Platform, TouchableWithoutFeedback,
+  Platform,
+  TouchableWithoutFeedback,
 } from 'react-native';
 
 //TODO: Use trim for checking addresses
@@ -30,7 +32,7 @@ import {getBalance, getTenzBalance} from "../../utils/ether";
 import {checkAccess} from 'tenzorum'
 import {text, shadow} from "../App/themes";
 
-let publicAddress = "0x9E48c4A74D618a567CD657579B728774f35B82C5";
+let publicAddress = "0xb78197a43836e084bE4ff1F4c84d7557EA11F214";
 
 
 let {height, width} = Dimensions.get('window');
@@ -47,10 +49,12 @@ export default class EnsRegistry extends Component<Props> {
       ethBalance: 0,
       tenzBalance: 0,
       hasAccess: false,
+      resolvedAddress: '',
     }
   }
 
   componentDidMount() {
+
     // const accounts = loadAccounts();
     // console.log('ACCOUNTS: ', accounts)
   }
@@ -67,13 +71,13 @@ export default class EnsRegistry extends Component<Props> {
     const addr = await checkSubdomainOwner(ensUsername, 'tenz-id');
 
     if (addr === emptyAddress) {
-      this.setState({ensFound: false, ensMessage: 'Unclaimed ENS'});
+      this.setState({ensFound: false, ensMessage: 'Unclaimed ENS', resolvedAddress: addr});
     } else if(addr === currentAccount) {
-      this.setState({ensFound: true, ensMessage: "It's your domain! Edit away!"});
+      this.setState({ensFound: true, ensMessage: "It's your domain! Edit away!", resolvedAddress: addr});
     } else if (addr === "0x") {
 
     } else {
-      this.setState({ensFound: true, ensMessage: "Resolves to: " + addr});
+      this.setState({ensFound: true, ensMessage: "Resolves to: " + addr, resolvedAddress: addr});
       this._checkBalances(addr);
     }
   };
@@ -84,8 +88,13 @@ export default class EnsRegistry extends Component<Props> {
     getTenzBalance(address).then(balance => this.setState({ tenzBalance: balance }))
   };
 
-  _setENS = () => {
+  _setENS = async () => {
     const {ensDomain} = this.state;
+    try {
+      await AsyncStorage.setItem('personalWalletAddress', ensDomain);
+    } catch (error) {
+      console.log('Unable to save: ', error);
+    }
     // newSubdomain(ensDomain, 'tenz-id', 'xyz', '0x37386A1c592Ad2f1CafFdc929805aF78C71b1CE7', '0x37386A1c592Ad2f1CafFdc929805aF78C71b1CE7');
     this.props.onRegister(ensDomain);
   };

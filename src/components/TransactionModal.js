@@ -35,9 +35,11 @@ import CameraModal from '../components/CameraModal';
 import {shadow, text} from "../App/themes";
 import {navigate} from "../../utils/navigationWrapper";
 
+const personalWalletAddress = "0xf8894138aa4d7b54b7d49afa9d5600cdb5178721";
+
 const emptyAddress = '0x0000000000000000000000000000000000000000';
 
-const publicAddress = "0x9E48c4A74D618a567CD657579B728774f35B82C5";
+const publicAddress = "0xb78197a43836e084bE4ff1F4c84d7557EA11F214";
 
 import { transferEtherNoReward, transferTokensNoReward, transferTokensWithTokenReward, transferEtherWithEtherReward } from 'tenzorum'
 import {getPubKey} from "../util/db";
@@ -80,7 +82,7 @@ export default class TransactionModal extends Component<Props> {
 
   componentDidMount() {
     this.setState({publicAddress: getPubKey()});
-    getBalance('0xf74694642a81a226771981cd38df9105a133c111').then(bal => this.setState({ethBalance: bal}));
+    getBalance().then(bal => this.setState({ethBalance: bal}));
     getTenzBalance().then(tenzBalance => this.setState({ tenzBalance }));
   }
 
@@ -117,7 +119,7 @@ export default class TransactionModal extends Component<Props> {
       } else {
         console.log("set currency")
       }
-      const res = await fetch('https://tenz-tsn-js-isochfcikf.now.sh/execute/0xf74694642a81a226771981cd38df9105a133c111', {
+      const res = await fetch('https://tenz-tsn-js-azxbvdmtys.now.sh/execute/'+personalWalletAddress, {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
@@ -153,22 +155,33 @@ export default class TransactionModal extends Component<Props> {
     this.setState({addressChecked: true});
     if (ensUsername.length === 0) {
       this.setState({ensAvailable: false, ensMessage: 'Enter a valid or unempty username'});
-      return;
-    }
+    } else if (web3.utils.isAddress(ensUsername) === true) {
+      if (ensUsername === emptyAddress) {
+        this.setState({ensAvailable: false, ensMessage: 'Invalid address'});
+      } else if(ensUsername === publicAddress) {
+        this.setState({ensAvailable: true, ensMessage: "It's your domain!"});
+      } else {
+        console.log(this.state.publicAddress)
+        this.setState({publicAddress: ensUsername});
+        this.setState({ensAvailable: true, ensMessage: "Valid address: " + ensUsername});
+      }
+      return ensUsername;
 
-    this.setState({ensDomain: ensUsername});
-    const {ensDomain} = this.state;
-    const addr = await addressResolver(ensUsername);
-    this.setState({publicAddress: addr});
-
-    if (addr === emptyAddress) {
-      this.setState({ensAvailable: false, ensMessage: 'Invalid address'});
-    } else if(addr === publicAddress) {
-      this.setState({ensAvailable: true, ensMessage: "It's your domain!"});
     } else {
-      this.setState({ensAvailable: true, ensMessage: "Valid address: " + this.state.publicAddress});
+      this.setState({ensDomain: ensUsername});
+      const {ensDomain} = this.state;
+      const addr = await addressResolver(ensUsername);
+      this.setState({publicAddress: addr});
+      if (addr === emptyAddress) {
+        this.setState({ensAvailable: false, ensMessage: 'Invalid address'});
+      } else if(addr === publicAddress) {
+        this.setState({ensAvailable: true, ensMessage: "It's your domain!"});
+      } else {
+        this.setState({ensAvailable: true, ensMessage: "Valid address: " + this.state.publicAddress});
+      }
+      return addr;
     }
-    return addr;
+
   };
 
   _chooseBalance = (crypto) => {
@@ -201,7 +214,7 @@ export default class TransactionModal extends Component<Props> {
             </View>
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
               <View style={styles.transactionBox}>
-                <ScrollView style={{marginRight: -20, marginLeft: -20, height: 100, padding: 10, flex: 0}} horizontal showsHorizontalScrollIndicator={false}>
+                <ScrollView style={{marginRight: -20, marginLeft: -20, height: 90, padding: 10, flex: 0}} horizontal showsHorizontalScrollIndicator={false}>
                   {cryptoCurrencies.map((currency, key) => {
                     let amount = this._chooseBalance(currency.name);
                     const {imageUrl, balance} = currency;
@@ -214,6 +227,7 @@ export default class TransactionModal extends Component<Props> {
                   })}
                 </ScrollView>
                 <Animatable.Text ref={this.handleTextRef} style={{fontSize: 20, fontWeight: '700', margin: 5}}>{this.state.currentCrypto.name}</Animatable.Text>
+                <View style={{width: 5, height: 20}}/>
                 <View style={styles.inputAndButton}>
                   <Input placeholder="Send to..." onChangeText={this._resolveAddress} autoCapitalize="none" value={ensDomain}/>
                   <TouchableOpacity onPress={() => this.setState({cameraModalVisible: !cameraModalVisible})} style={styles.squareButton}>
@@ -228,11 +242,11 @@ export default class TransactionModal extends Component<Props> {
                 <View style={[styles.inputAndButton]}>
                   <Input placeholder="Amount" keyboardType={"numeric"} onChangeText={(amount) => this.setState({amount})} autoCapitalize="none" value={amount}/>
                 </View>
-                <View style={{width: 5, height: 15}}></View>
-                {/*<View style={[styles.inputAndButton, {marginTop: 5}]}>*/}
-                  {/*/!*<RangeSlider values={[1]} min={0} max={100000000} step={1000} style={{width: 265}} onValuesChange={(val) => {this.setState({reward: val[0].toString()}); console.log('Value: ', val)}} />*!/*/}
-                  {/*<Input placeholder="Reward" keyboardType={"numeric"} onChangeText={(reward) => this.setState({reward})} autoCapitalize="none" value={reward}/>*/}
-                {/*</View>*/}
+                <View style={{width: 5, height: 15}}/>
+                <View style={[styles.inputAndButton, {marginTop: 5}]}>
+                  {/*<RangeSlider values={[1]} min={0} max={100000000} step={1000} style={{width: 265}} onValuesChange={(val) => {this.setState({reward: val[0].toString()}); console.log('Value: ', val)}} />*/}
+                  <Input placeholder="Reward" keyboardType={"numeric"} onChangeText={(reward) => this.setState({reward})} autoCapitalize="none" value={reward}/>
+                </View>
                 <RoundButton
                   style={{...shadow}}
                   buttonState={this.state.buttonState} // "upload" or "uploading"

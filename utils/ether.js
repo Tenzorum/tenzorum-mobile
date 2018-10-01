@@ -17,10 +17,10 @@ const tenzToken = new web3.eth.Contract(tokenAbi , "0xb07c36074b8333b01e38a307df
 
 
 const contractAddress = '0x624a5458c3ceb82E0ef1830b9a7a25525d07F69e';
-const personalWalletAddress = "0xf74694642a81a226771981cd38df9105a133c111";
-// const personalWalletAddress = "0xf8894138aa4d7b54b7d49afa9d5600cdb5178721";
-const privateKey = new Buffer('2e5a537948b5d4dd63f690f5a82f8591cb5c41a562c9cce850adfb29a99a8cc5', 'hex');
-const publicAddress = "0x9E48c4A74D618a567CD657579B728774f35B82C5";
+const personalWalletAddress = "0xf8894138aa4d7b54b7d49afa9d5600cdb5178721";
+// const personalWalletAddress = "0xf74694642a81a226771981cd38df9105a133c111";
+const privateKey = new Buffer('f6bca93804832b20404b720da65ed233b5f0bbad292b16684f912c365c01965b', 'hex');
+const publicAddress = "0xb78197a43836e084bE4ff1F4c84d7557EA11F214";
 
 import { initSdk } from 'tenzorum'
 
@@ -41,12 +41,12 @@ export const initApp = async () => {
 };
 
 export const getTenzBalance = async (address) => {
-  const personalMultiSig = address || '0xF74694642a81A226771981cd38df9105A133c111';
+  const personalMultiSig = address || personalWalletAddress;
   let balance = await tenzToken.methods.balanceOf(personalMultiSig).call();
   return Math.floor(web3.utils.fromWei(balance, "ether"));
 };
 
-export const getBalance = async (address) => await web3.eth.getBalance(address).then(res => Math.round(web3.utils.fromWei(res, "ether")*100)/100);
+export const getBalance = async (address) => await web3.eth.getBalance(address || personalWalletAddress).then(res => Math.round(web3.utils.fromWei(res, "ether")*100)/100);
 
 export const _sendETH = async (_addr, _amount, _data) => {
   const publicAddress = getPubKey();

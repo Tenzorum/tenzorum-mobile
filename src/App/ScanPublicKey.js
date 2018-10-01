@@ -122,7 +122,6 @@ export default class ScanPublicKey extends Component {
     fetch('https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD')
       .then((response) => response.json())
       .then((responseJson) => {
-        console.log('RESPONSE: ', responseJson);
         this.setState({exchangeRate: responseJson.USD})
       })
       .catch((error) => {
