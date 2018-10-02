@@ -94,42 +94,30 @@ export default class TransactionModal extends Component<Props> {
   };
 
   _sendTransaction = async () => {
-    // const {reward, amount, currentCrypto} = this.state;
     const {reward, amount, currentCrypto, publicAddress} = this.state;
-
-    let payload;
+    let response;
     Keyboard.dismiss();
     try {
       if (currentCrypto.type === "token") {
         if (reward) {
-          payload = await transferTokensWithTokenReward(currentCrypto.address, web3.utils.toWei(amount, "ether"), publicAddress, web3.utils.toWei(reward, "ether"));
-          console.log('PAYLOAD: ', payload);
+          response = await transferTokensWithTokenReward(currentCrypto.address, web3.utils.toWei(amount, "ether"), publicAddress, web3.utils.toWei(reward, "ether"));
+          console.log('PAYLOAD: ', response);
         } else {
-          payload = await transferTokensNoReward(currentCrypto.address, web3.utils.toWei(amount, "ether"), publicAddress);
-          console.log('PAYLOAD: ', payload);
+          response = await transferTokensNoReward(currentCrypto.address, web3.utils.toWei(amount, "ether"), publicAddress);
+          console.log('PAYLOAD: ', response);
         }
       } else if (currentCrypto.type === "cryptoCurrency") {
         if (reward) {
-          payload = await transferEtherWithEtherReward(web3.utils.toWei(amount, "ether"), publicAddress, web3.utils.toWei(reward, "ether"));
-          console.log('PAYLOAD: ', payload);
+          response = await transferEtherWithEtherReward(web3.utils.toWei(amount, "ether"), publicAddress, web3.utils.toWei(reward, "ether"));
+          console.log('PAYLOAD: ', response);
         } else {
-          payload = await transferEtherNoReward(web3.utils.toWei(amount, "ether"), publicAddress);
-          console.log('PAYLOAD: ', payload);
+          response = await transferEtherNoReward(web3.utils.toWei(amount, "ether"), publicAddress);
+          console.log('PAYLOAD: ', response);
         }
       } else {
         console.log("set currency")
       }
-      const res = await fetch('https://tenz-tsn-js-azxbvdmtys.now.sh/execute/'+personalWalletAddress, {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-        body: payload
-      });
-      const response = JSON.parse(await res.text());
       if (response.txHash) {
-        console.log('TXHASH: ', response);
         this.setState({ buttonState: 'success' })
         Alert.alert(
           'Transaction Submitted',
@@ -141,7 +129,6 @@ export default class TransactionModal extends Component<Props> {
           { cancelable: false }
         )
       }
-      console.log('RESPONSE: ', response.txHash);
       return response;
 
     } catch(e) {
